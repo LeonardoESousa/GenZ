@@ -10,22 +10,23 @@ import os
 # iii)Retorna matriz ordenada. 
 maximize=True
 def order():
-    r=np.loadtxt('Report.txt')
-   
+    r=np.loadtxt('Report.dat')
     try:
-        e=np.loadtxt('Elite.txt')
+        e=np.loadtxt('Elite.dat')
         f=np.vstack((r,e))
     except:
         f=r
-
     arr=np.array(f)
-
     if maximize==True:
-        sorted_arr=sorted(arr,reverse=True,key=lambda x:x[-1])
+        sorted_arr = sorted(arr,reverse=True,key=lambda x:x[-1])
         #sorted_arr=np.sort(arr,axis=-1)
     else:
-        sorted_arr=sorted(arr,reverse=False,key=lambda x:x[-1])
-    return(sorted_arr)
+        sorted_arr = sorted(arr,reverse=False,key=lambda x:x[-1])
+    return sorted_arr
+
+s = order()
+
+print(type(s))
 
 ## TNG
 # args: matriz ordenada
