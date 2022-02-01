@@ -10,20 +10,17 @@ np.set_printoptions(suppress=True)
 # iii)Retorna matriz ordenada. 
 
 def order(maximize=True):
-    r=np.loadtxt('Report.dat')
-   
+    data = np.loadtxt('Report.dat')
     try:
-        e=np.loadtxt('Elite.dat')
-        f=np.vstack((r,e))
+        elite = np.loadtxt('Elite.dat')
+        data  = np.vstack((data,elite))
     except:
-        f=r
-
-    arr=np.array(f)
-    indice = np.argsort(arr[:,-1])
+        pass
+    indice = np.argsort(data[:,-1])
     if maximize == True:
-        sorted_arr = arr[np.flip(indice),:]
+        sorted_arr = data[np.flip(indice),:]
     else:
-        sorted_arr = arr[np.flip(indice),:]
+        sorted_arr = data[np.flip(indice),:]
     return sorted_arr
 
 print(order())
