@@ -9,7 +9,7 @@ np.set_printoptions(suppress=True)
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
 # iii)Retorna matriz ordenada. 
 
-def order(maximize=True):
+def order(maximize=False):
     data = np.loadtxt('Report.dat')
     try:
         elite = np.loadtxt('Elite.dat')
@@ -20,7 +20,7 @@ def order(maximize=True):
     if maximize == True:
         sorted_arr = data[np.flip(indice),:]
     else:
-        sorted_arr = data[np.flip(indice),:]
+        sorted_arr = data[indice,:]
     return sorted_arr
 
 print(order())
