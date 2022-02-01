@@ -2,14 +2,14 @@ import numpy as np
 import os
 
 
-
+np.set_printoptions(suppress=True)
 ## Orders the Report
 # args: None
 # i)  Try: Incluir elite no report. 
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
 # iii)Retorna matriz ordenada. 
-maximize=True
-def order():
+
+def order(maximize=True):
     r=np.loadtxt('Report.dat')
    
     try:
@@ -19,14 +19,12 @@ def order():
         f=r
 
     arr=np.array(f)
-
-    if maximize==True:
-        #sorted_arr=sorted(arr,reverse=True,key=lambda x:x[-1])
-        sorted_arr=np.sort(arr,axis=-2)
+    indice = np.argsort(arr[:,-1])
+    if maximize == True:
+        sorted_arr = arr[np.flip(indice),:]
     else:
-        #sorted_arr=sorted(arr,reverse=False,key=lambda x:x[-1])
-        sorted_arr=np.sort(arr,axis=-2)
-    return(sorted_arr)
+        sorted_arr = arr[np.flip(indice),:]
+    return sorted_arr
 
 print(order())
 
