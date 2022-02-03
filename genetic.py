@@ -1,8 +1,9 @@
 import numpy as np
 import os
 
-
 np.set_printoptions(suppress=True)
+
+
 ## max_id (Pedao)
 # args: None
 # i) Abre o Report.dat com o np.loadtxt e pega o maior numero da primeira coluna.
@@ -15,7 +16,6 @@ np.set_printoptions(suppress=True)
 # i)  Try: Incluir elite no report. 
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
 # iii)Retorna matriz ordenada. 
-# iv) Atualiza o arquivo Elite.dat com a nova elite
 def order(maximize=False):
     data = np.loadtxt('Report.dat')
     try:
@@ -31,6 +31,11 @@ def order(maximize=False):
     return sorted_arr
 
 print(order())
+
+## Elite (Laura)
+# args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
+# i) Pega as primeiras N linhas da matriz ordenada, onde N é o numero de elementos na elite.
+# ii) Escreve a matriz no arquivo Elite.dat 
 
 ## Best (Pedao)
 # args: matriz ordenada que sai da funcao order (numpy array).
