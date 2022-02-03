@@ -36,6 +36,12 @@ print(order())
 # args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
 # i) Pega as primeiras N linhas da matriz ordenada, onde N é o numero de elementos na elite.
 # ii) Escreve a matriz no arquivo Elite.dat 
+def elite(num_elite,sorted_arr):
+    sorted_arr = order(maximize = True)
+    with open('Elite.dat','w') as new_elite:
+        for i in range(0,num_elite):
+            new_elite.write(str(sorted_arr[i,:]))
+    return 
 
 ## Best (Pedao)
 # args: matriz ordenada que sai da funcao order (numpy array).
