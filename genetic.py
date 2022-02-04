@@ -1,7 +1,50 @@
 import numpy as np
 import os
+import random
 
 np.set_printoptions(suppress=True)
+
+class Genes():
+    def __init__(self):
+        self.genes   = []
+        self.types   = {}
+        self.limits  = {}
+        self.formats = {}
+
+    def add_gene(self,**kwargs):
+        num = len(self.genes)
+        self.genes.append(num)
+        self.types[num] = kwargs['type']
+        self.limits[num] = kwargs['space']
+        if kwargs['type'] == float:
+            self.formats[num] = kwargs['format']
+
+    def mutation(self,num,gene):
+        if self.types[num] !=  float:
+            lista = self.limits[num]
+            del lista[lista.index(gene)]
+            new_gene = random.choice(lista)
+        else:
+            new_gene = np.random.uniform(self.limits[num][0],self.limits[num][-1])
+            new_gene = np.round(new_gene,self.formats[num])
+        return new_gene    
+
+## Cria instancia da classe Genes
+genes = Genes()
+## Adiciona um gene de tipo float, com valores de 0 a 100 e duas casas decimais
+genes.add_gene(type=float, space=[0,100], format=2)
+## Adiciona um gene de tipo int, com valores possíveis 0 ou 1
+genes.add_gene(type=int, space=[0,1])
+## Adiciona um gene de tipo str, com valores possíveis a, b ou c
+genes.add_gene(type=str, space=['a','b','c'])
+# Printa lista que identifica cada gene
+print(genes.genes)
+# Realiza a mutacao no gene 0 que tem valor 1 agora e retorna o novo valor
+print(genes.mutation(0,1))
+# Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
+print(genes.mutation(1,0))
+# Realiza a mutacao no gene 2 que tem valor 'a' agora e retorna o novo valor
+print(genes.mutation(2,'a'))
 
 
 ## max_id (Pedao)
@@ -29,8 +72,6 @@ def order(maximize=False):
     else:
         sorted_arr = data[indice,:]
     return sorted_arr
-
-print(order())
 
 ## Elite (Laura)
 # args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
@@ -62,13 +103,13 @@ def elite(num_elite,sorted_arr):
 
 ## Crossover (Pedao)
 # args: array com genes de todos os pais
-# i)  Fazer o crossover. Crossover tem de depender de qual o tipo de gene (binario, int, float, quantas casa decimais, string)
+# i)  Sortear qual pai vai passar seu gene.
 # ii) Funcao retorna um array com os genes do filho. 
 
 
 ## Mutacao (Laura)
 # args: array com os genes de um individuo, parametro que controla a chance de mutacao. 
-# i) Fazer mutacao (mutacao variavel. inversamente proporcional ao desvio padrao dos fitness que estao na matriz argumento da funcao)
+# i) Faz um loop sobre todos os genes. Decide aleatoriamente se o gene vai sofrer mutacao. Chama a funcao mutation e altera o valor do gene.
 # ii) Funcao retorna um array com os genes do filho. 
 
 
