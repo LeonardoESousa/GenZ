@@ -116,15 +116,37 @@ def elite(num_elite,sorted_arr):
 #   vii)  Usar o np.vstack para criar um array em que cada linha corresponde a um filho e cada coluna os seus genes. A primeira coluna tem de ser o numero identificador do individuo.
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
+def tng(sorted_arr, num_new_gen, num_parents, maximize = True):
+    fitness = sorted_arr[:,-1]
+    id_new_gen = max_id() + 1
+    first = np.zeros((1,np.shape(sorted_arr)[1]-1))
+    for i in range(0,num_new_gen):
+        if (maximize == True):
+            indices = random.choices(np.arange(len(fitness)), weights = fitness, k=num_parents)
+        else:
+            indices = random.choices(np.arange(len(fitness)), weights = np.nan_to_num(1/fitness), k=num_parents)
+        parents = sorted_arr[indices,:] 
+        new_individual = crossover(parents,id_new_gen)
+        #          = mutation()
+        next_gen = np.vstack((first,new_individual))
+        id_new_gen += 1
+    next_gen = np.delete(next_gen,(0),axis=0)
+    np.savetxt('NextGen.dat',next_gen, delimiter='    ',fmt='%7.4f')
 
 
-## Crossover (Pedao)
+## Crossover (Laura)
 # args: array com genes de todos os pais
 # i)  Sortear qual pai vai passar seu gene.
 # ii) Funcao retorna um array com os genes do filho. 
+def crossover(parents,id_new_gen):
+    individual = np.zeros((1,np.shape(parents)[1]-1))
+    individual[0,0] = id_new_gen
+    for i in range(1,np.shape(parents)[1]-1):
+        gene = random.choice(parents[:,i])
+        individual[0,i] = gene
+    return individual
 
-
-## Mutacao (Laura)
+## Mutacao (Pedao)
 # args: array com os genes de um individuo, parametro que controla a chance de mutacao. 
 # i) Faz um loop sobre todos os genes. Decide aleatoriamente se o gene vai sofrer mutacao. Chama a funcao mutation e altera o valor do gene.
 # ii) Funcao retorna um array com os genes do filho. 
