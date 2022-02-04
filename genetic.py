@@ -127,16 +127,16 @@ def tng(sorted_arr, num_new_gen, num_parents, maximize = True):
     first = np.zeros((1,np.shape(sorted_arr)[1]-1))
     for i in range(0,num_new_gen):
         if (maximize == True):
-            indices = random.choices(np.arange(len(fitness)), weights = fitness, k=num_parents)
+            indices = random.choices(np.arange(len(fitness)), weights = fitness, k = num_parents)
         else:
-            indices = random.choices(np.arange(len(fitness)), weights = np.nan_to_num(1/fitness), k=num_parents)
+            indices = random.choices(np.arange(len(fitness)), weights = np.nan_to_num(1/fitness), k = num_parents)
         parents = sorted_arr[indices,:] 
         new_individual = crossover(parents,id_new_gen)
         #          = mutation()
         next_gen = np.vstack((first,new_individual))
         id_new_gen += 1
-    next_gen = np.delete(next_gen,(0),axis=0)
-    np.savetxt('NextGen.dat',next_gen, delimiter='    ',fmt='%7.4f')
+    next_gen = np.delete(next_gen, (0),axis = 0)
+    np.savetxt('NextGen.dat',next_gen, delimiter = '    ',fmt = '%7.4f')
 
 
 ## Crossover (Laura)
