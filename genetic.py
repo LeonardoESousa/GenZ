@@ -27,7 +27,25 @@ class Genes():
         else:
             new_gene = np.random.uniform(self.limits[num][0],self.limits[num][-1])
             new_gene = np.round(new_gene,self.formats[num])
-        return new_gene    
+        return new_gene 
+
+    def first_gen(self,num):
+        first = np.zeros((1,len(self.genes)+1))
+        for i in range(num):
+            fmts = ['%d']
+            linha = np.zeros((1,len(self.genes)+1))
+            linha[0,0] = i
+            for g in self.genes:
+                if self.types[g] != float:
+                    fmts.append('%d')
+                    linha[0,g+1] = random.choice(self.limits[g])
+                else:
+                    linha[0,g+1] = np.round(np.random.uniform(self.limits[g][0],self.limits[g][-1]),self.formats[g])
+                    fmts.append('%.{}f'.format(self.formats[g]))
+            first = np.vstack((first,linha))
+        first = first[1:,:]
+        np.savetxt('NextGen.dat', first, fmt=fmts)
+
 
 ## Cria instancia da classe Genes
 genes = Genes()
@@ -36,16 +54,15 @@ genes.add_gene(type=float, space=[0,100], format=2)
 ## Adiciona um gene de tipo int, com valores possíveis 0 ou 1
 genes.add_gene(type=int, space=[0,1])
 ## Adiciona um gene de tipo str, com valores possíveis a, b ou c
-genes.add_gene(type=str, space=['a','b','c'])
+#genes.add_gene(type=str, space=['a','b','c'])
 # Printa lista que identifica cada gene
 print(genes.genes)
 # Realiza a mutacao no gene 0 que tem valor 1 agora e retorna o novo valor
 print(genes.mutation(0,1))
 # Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
 print(genes.mutation(1,0))
-# Realiza a mutacao no gene 2 que tem valor 'a' agora e retorna o novo valor
-print(genes.mutation(2,'a'))
-
+# Cria a primeira geracao de individuos com 10 individuos
+genes.first_gen(10)
 
 ## max_id (Pedao)
 # args: None
