@@ -5,11 +5,16 @@ import random
 np.set_printoptions(suppress=True)
 
 class Genes():
-    def __init__(self):
+    def __init__(self,**kwargs):
         self.genes   = []
         self.types   = {}
         self.limits  = {}
         self.formats = {}
+        self.fmts    = ['%d']
+        self.population  = kwargs['population']
+        self.generations = kwargs['generations']
+        self.maximize    = kwargs['maximize']
+
 
     def add_gene(self,**kwargs):
         num = len(self.genes)
@@ -18,6 +23,9 @@ class Genes():
         self.limits[num] = kwargs['space']
         if kwargs['type'] == float:
             self.formats[num] = kwargs['format']
+            self.fmts.append('%.{}f'.format(kwargs['format']))
+        else:
+            self.fmts.append('%d')    
 
     def mutation(self,num,gene):
         if self.types[num] !=  float:
@@ -29,26 +37,23 @@ class Genes():
             new_gene = np.round(new_gene,self.formats[num])
         return new_gene 
 
-    def first_gen(self,num):
+    def first_gen(self):
         first = np.zeros((1,len(self.genes)+1))
-        for i in range(num):
-            fmts = ['%d']
+        for i in range(self.population):
             linha = np.zeros((1,len(self.genes)+1))
             linha[0,0] = i
             for g in self.genes:
                 if self.types[g] != float:
-                    fmts.append('%d')
                     linha[0,g+1] = random.choice(self.limits[g])
                 else:
                     linha[0,g+1] = np.round(np.random.uniform(self.limits[g][0],self.limits[g][-1]),self.formats[g])
-                    fmts.append('%.{}f'.format(self.formats[g]))
             first = np.vstack((first,linha))
         first = first[1:,:]
-        np.savetxt('NextGen.dat', first, fmt=fmts)
+        np.savetxt('NextGen.dat', first, fmt=self.fmts)
 
 
-## Cria instancia da classe Genes
-genes = Genes()
+## Cria instancia da classe Genes com populacao de 10 individuos e 10 geracoes
+genes = Genes(population=10,generations=10, maximize=True)
 ## Adiciona um gene de tipo float, com valores de 0 a 100 e duas casas decimais
 genes.add_gene(type=float, space=[0,100], format=2)
 ## Adiciona um gene de tipo int, com valores possíveis 0 ou 1
@@ -61,8 +66,8 @@ print(genes.genes)
 print(genes.mutation(0,1))
 # Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
 print(genes.mutation(1,0))
-# Cria a primeira geracao de individuos com 10 individuos
-genes.first_gen(10)
+# Cria a primeira geracao de individuos 
+genes.first_gen()
 
 ## max_id (Pedao)
 # args: None
