@@ -73,7 +73,9 @@ genes.first_gen()
 # ii) Retorna esse numero.
 #Funcao provisoria abaixo
 def max_id():
-    return 4
+    data = np.loadtxt('NextGen.dat')
+    num_max=np.amax([coluna[0] for coluna in data])
+    return num_max
 
 
 ## Orders the Report (Laura)
