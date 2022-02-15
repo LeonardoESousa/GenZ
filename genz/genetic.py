@@ -174,6 +174,20 @@ def get_genes(id_ind):
 # iv) Feitos os arquivos batch, criar um arquivo master.sh com uma linha pra cada arquivo batch gerado. Cada linha
 # deve ter './batch_i.sh &\n' 
 
+def script_batch(N):
+    data = np.loadtxt('NextGen.dat')
+    num_script = int(len(data[:,0])/N)
+
+    for i in range(num_script): 
+        script = open('batch_'+str(i+1)+'.py', 'w')
+        script.write('python3 '+ str(data[i,0])+'\n')
+        script.close
+
+    master = open('master.sh', 'w')
+    for i in range(num_script):
+        master.write('./batch_'+str(i+1)+'.sh \n')
+        master.close
+
 
 
 
