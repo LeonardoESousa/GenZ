@@ -74,7 +74,7 @@ genes.first_gen()
 #Funcao provisoria abaixo
 def max_id():
     data = np.loadtxt('NextGen.dat')
-    num_max=np.amax([coluna[0] for coluna in data])
+    num_max = max(data[:,0])
     return num_max
 
 
@@ -157,7 +157,20 @@ def tng(sorted_arr, num_new_gen, num_parents):
     np.savetxt('NextGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
 
 
+## Pega genes
+# args: id do individuo (int)
+# i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
+# ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
 
+
+## Gera batch script
+# args: numero N de jobs por script (int), nome do arquivo (file) .py que vai rodar os calculos de cada indivíduo (str).
+# i) Abre o NextGen.dat e pega a primeira coluna. Esses sao os ids dos calculos que vao rodar.
+# ii) Calcular quantos scripts são necessários. Se vc tem 10 individuos no NextGen e N = 2, são 5 scripts.
+# iii) Usar um loop pra criar cada script. Esse é um arquivo com nome 'batch_i.sh' onde i é o numero do batch.
+#Cada linha desse arquivo deve conter 'python3 file id\n'
+# iv) Feitos os arquivos batch, criar um arquivo master.sh com uma linha pra cada arquivo batch gerado. Cada linha
+# deve ter './batch_i.sh &\n' 
 
 
 
