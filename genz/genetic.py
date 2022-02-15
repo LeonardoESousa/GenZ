@@ -52,20 +52,11 @@ class Genes():
         np.savetxt('NextGen.dat', first, fmt=self.fmts, delimiter='\t')
 
 
-## Cria instancia da classe Genes com populacao de 10 individuos e 10 geracoes
-genes = Genes(population=10,generations=10, maximize=True)
-## Adiciona um gene de tipo float, com valores de 0 a 100 e duas casas decimais
-genes.add_gene(type=float, space=[-5,5], format=3)
-genes.add_gene(type=float, space=[-5,5], format=3)
-genes.add_gene(type=float, space=[-5,5], format=3)
+
 # Printa lista que identifica cada gene
-print(genes.genes)
-# Realiza a mutacao no gene 0 que tem valor 1 agora e retorna o novo valor
-print(genes.mutation(0,1))
-# Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
-print(genes.mutation(1,0))
+#print(genes.genes)
 # Cria a primeira geracao de individuos 
-genes.first_gen()
+#genes.first_gen()
 
 ## max_id (Pedao)
 # args: None
@@ -83,7 +74,7 @@ def max_id():
 # i)  Try: Incluir elite no report. 
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
 # iii)Retorna matriz ordenada. 
-def order():
+def order(maximize):
     data = np.loadtxt('Report.dat')
     try:
         elite = np.loadtxt('Elite.dat')
@@ -91,7 +82,7 @@ def order():
     except:
         pass
     indice = np.argsort(data[:,-1])
-    if genes.maximize:
+    if maximize:
         sorted_arr = data[np.flip(indice),:]
     else:
         sorted_arr = data[indice,:]
@@ -101,7 +92,7 @@ def order():
 # args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
 # i) Pega as primeiras N linhas da matriz ordenada, onde N é o numero de elementos na elite.
 # ii) Escreve a matriz no arquivo Elite.dat 
-def elite(num_elite,sorted_arr):
+def elite(num_elite,sorted_arr,genes):
     np.savetxt('Elite.dat',sorted_arr[0:num_elite,:], delimiter='\t',fmt=genes.fmts+['%.3f'])
 
 ## Best (Pedao)
@@ -124,9 +115,12 @@ def crossover(parents,id_new_gen):
     return individual
 
 ## Mutacao (Pedao)
-# args: array com os genes de um individuo, parametro que controla a chance de mutacao. 
-# i) Faz um loop sobre todos os genes. Decide aleatoriamente se o gene vai sofrer mutacao. Chama a funcao mutation e altera o valor do gene.
-# ii) Funcao retorna um array com os genes do filho. 
+# args: array com os genes de um individuo, parametro (k) que controla a chance de mutacao (float), objeto genes. 
+# i) Faz um loop sobre todos os genes. Decide aleatoriamente se o gene vai sofrer mutacao. Chama a funcao mutation. Isso e feito fazendo genes.mutation(a,b) em que a e o numero do gene e b o valor desse gene. Ex:
+# new_gene = genes.mutation(0,1) - Realiza a mutacao no gene 0 que tem valor 1 agora e retorna o novo valor
+# new_gene = genes.mutation(1,0) - Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
+# ii) Troca o gene velho pelo novo. Repete para todos os genes.
+# iii) Funcao retorna um array com os genes do filho. 
 
 ## TNG (Laura)
 # args: matriz ordenada (numpy array), numero de filhos (int), numero de pais (int) (pode ser 2 ou mais), maximize (Boolean)
@@ -139,18 +133,18 @@ def crossover(parents,id_new_gen):
 #   vii)  Usar o np.vstack para criar um array em que cada linha corresponde a um filho e cada coluna os seus genes. A primeira coluna tem de ser o numero identificador do individuo.
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
-def tng(sorted_arr, num_new_gen, num_parents):
+def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
     fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     for i in range(0,num_new_gen):
-        if genes.maximize:
+        if maximize:
             indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
         else:
             indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/fitness), k=num_parents)
         parents = sorted_arr[indices,:] 
         new_individual = crossover(parents,id_new_gen)
-        #          = mutation()
+        #new_individual= mutation(new_individual,k)
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
