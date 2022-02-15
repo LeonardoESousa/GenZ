@@ -155,6 +155,14 @@ def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
 # args: id do individuo (int)
 # i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
 # ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
+def get_genes(id_ind):
+    data = np.loadtxt('NextGen.dat')
+    ind_genes = np.zeros((1,np.shape(data)[1]))
+    for id in range(len(data[:,0])):
+        if data[id,0] == id_ind:
+            ind_genes = np.vstack((ind_genes, data[id,:]))
+    ind_genes = ind_genes[1:,1:]
+    return ind_genes 
 
 
 ## Gera batch script
