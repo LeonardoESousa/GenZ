@@ -102,6 +102,26 @@ def elite(num_elite,sorted_arr,genes):
 # ii) No mesmo arquivo, escrever a média e o desvio padrão dos genes do melhor cara. Usar o np.mean e np.std que já calcula o de todas as colunas de uma vez.
 # Usar o np.savetxt pra escrever no mesmo arquivo.
 
+def Best(matriz_ordenada):
+   with open('Best.dat', 'w') as file:
+        melhor_indiv=[matriz_ordenada[0,:]]
+        best_fitness=matriz_ordenada[0,-1]
+        #best_fitness=10  #descomente para debug
+        i=1
+        while matriz_ordenada[i,-1] == best_fitness:
+            melhor_indiv=np.vstack((melhor_indiv,matriz_ordenada[i,:]))
+            #best_fitness=9  #descomente para debug
+            i += 1
+        media=np.mean(melhor_indiv,axis=0)
+        media=[media[1:-1]]
+        desvi=np.std(melhor_indiv,axis=0)
+        desvi=[desvi[1:-1]]
+        np.savetxt(file,melhor_indiv,fmt='%.3f',delimiter='\t')
+        np.savetxt(file,media,fmt='%.3f',delimiter='\t')
+        np.savetxt(file,desvi,fmt='%.3f',delimiter='\t')
+        return 
+
+
 ## Crossover (Laura)
 # args: array com genes de todos os pais
 # i)  Sortear qual pai vai passar seu gene.
