@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import random
+import math
 
 np.set_printoptions(suppress=True)
 
@@ -177,12 +178,9 @@ def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
 # ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
 def get_genes(id_ind):
     data = np.loadtxt('NextGen.dat')
-    ind_genes = np.zeros((1,np.shape(data)[1]))
-    for id in range(len(data[:,0])):
-        if data[id,0] == id_ind:
-            ind_genes = np.vstack((ind_genes, data[id,:]))
-    ind_genes = ind_genes[1:,1:]
-    return ind_genes 
+    id = np.where(data[:,0] == id_ind)[0][0]
+    ind_genes=data[id,1:]
+    return ind_genes
 
 
 ## Gera batch script
@@ -196,19 +194,18 @@ def get_genes(id_ind):
 
 def script_batch(N):
     data = np.loadtxt('NextGen.dat')
-    num_script = int(len(data[:,0])/N)
+    num_script = math.ceil(len(data[:,0])/N) 
 
-    for i in range(num_script): 
-        script = open('batch_'+str(i+1)+'.py', 'w')
-        script.write('python3 '+ str(data[i,0])+'\n')
-        script.close
+    m=0
+    for j in range(num_script):
+        with open('batch_'+str(j+1)+'.sh','w') as script:
+            l=0
+            while l<N:
+                script.write('python3 '+ str(data[m,0])+'\n')
+                l+=1
+                m+=1
 
     master = open('master.sh', 'w')
     for i in range(num_script):
         master.write('./batch_'+str(i+1)+'.sh \n')
         master.close
-
-
-
-
-
