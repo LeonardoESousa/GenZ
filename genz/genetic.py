@@ -179,7 +179,7 @@ def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
 def get_genes(id_ind):
     data = np.loadtxt('NextGen.dat')
     id = np.where(data[:,0] == id_ind)[0][0]
-    ind_genes=data[id,1:]
+    ind_genes = data[id,1:]
     return ind_genes
 
 
@@ -196,16 +196,16 @@ def script_batch(N):
     data = np.loadtxt('NextGen.dat')
     num_script = math.ceil(len(data[:,0])/N) 
 
-    m=0
+    m = 0
     for j in range(num_script):
-        with open('batch_'+str(j+1)+'.sh','w') as script:
-            l=0
-            while l<N:
-                script.write('python3 '+ str(data[m,0])+'\n')
-                l+=1
-                m+=1
+        with open('batch_' + str(j+1) + '.sh', 'w') as script:
+            l = 0
+            while l < N:
+                script.write('python3 ' + str(data[m,0]) + '\n')
+                l += 1
+                m += 1
 
     master = open('master.sh', 'w')
     for i in range(num_script):
-        master.write('./batch_'+str(i+1)+'.sh \n')
+        master.write('./batch_' + str(i+1) + '.sh \n')
         master.close
