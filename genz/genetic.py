@@ -13,9 +13,6 @@ class Genes():
         self.formats = {}
         self.fmts    = ['%d']
         self.population  = kwargs['population']
-        self.generations = kwargs['generations']
-        self.maximize    = kwargs['maximize']
-
 
     def add_gene(self,**kwargs):
         num = len(self.genes)
@@ -52,12 +49,6 @@ class Genes():
         first = first[1:,:]
         np.savetxt('NextGen.dat', first, fmt=self.fmts, delimiter='\t')
 
-
-
-# Printa lista que identifica cada gene
-#print(genes.genes)
-# Cria a primeira geracao de individuos 
-#genes.first_gen()
 
 ## max_id (Pedao)
 # args: None
@@ -142,6 +133,9 @@ def crossover(parents,id_new_gen):
 # new_gene = genes.mutation(1,0) - Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
+def mutation(individual):
+    return individual
+
 
 ## TNG (Laura)
 # args: matriz ordenada (numpy array), numero de filhos (int), numero de pais (int) (pode ser 2 ou mais), maximize (Boolean)
@@ -165,7 +159,7 @@ def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
             indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/fitness), k=num_parents)
         parents = sorted_arr[indices,:] 
         new_individual = crossover(parents,id_new_gen)
-        #new_individual= mutation(new_individual,k)
+        new_individual = mutation(new_individual,k)
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
@@ -209,3 +203,7 @@ def script_batch(N):
     for i in range(num_script):
         master.write('./batch_' + str(i+1) + '.sh \n')
         master.close
+
+## Gera arquivo Progress.dat
+# Esse arquivo registra o melhor individuo de cada round do genetico.
+# args: None
