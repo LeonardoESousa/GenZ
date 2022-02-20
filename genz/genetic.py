@@ -202,7 +202,7 @@ def script_batch(N):
     master = open('master.sh', 'w')
     for i in range(num_script):
         master.write('./batch_' + str(i+1) + '.sh \n')
-        master.close
+    master.close
 
 ## Gera arquivo Progress.dat
 # Esse arquivo registra o melhor individuo de cada round do genetico.
