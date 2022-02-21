@@ -24,6 +24,7 @@ genes     = config.genes
 def main():
     genes.first_gen()
     # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.
+    #for n in Range(Num_gen):
     pass
 
 if __name__ == "__main__":

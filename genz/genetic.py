@@ -94,7 +94,7 @@ def elite(num_elite,sorted_arr,genes):
 # ii) No mesmo arquivo, escrever a média e o desvio padrão dos genes do melhor cara. Usar o np.mean e np.std que já calcula o de todas as colunas de uma vez.
 # Usar o np.savetxt pra escrever no mesmo arquivo.
 
-def Best(matriz_ordenada):
+def Best(matriz_ordenada,genes):
    with open('Best.dat', 'w') as file:
         melhor_indiv=[matriz_ordenada[0,:]]
         best_fitness=matriz_ordenada[0,-1]
@@ -108,10 +108,13 @@ def Best(matriz_ordenada):
         media=[media[1:-1]]
         desvi=np.std(melhor_indiv,axis=0)
         desvi=[desvi[1:-1]]
-        np.savetxt(file,melhor_indiv,fmt='%.3f',delimiter='\t')
-        np.savetxt(file,media,fmt='%.3f',delimiter='\t')
-        np.savetxt(file,desvi,fmt='%.3f',delimiter='\t')
-        return 
+        np.savetxt(file,melhor_indiv,fmt=genes.fmts,delimiter='\t')
+        np.savetxt(file,media,fmt=genes.fmts,delimiter='\t')
+        np.savetxt(file,desvi,fmt=genes.fmts,delimiter='\t')
+
+## Gera arquivo Progress.dat
+# Esse arquivo registra o melhor individuo de cada round do genetico.
+# args: numero da geracao (N).
 
 
 ## Crossover (Laura)
@@ -204,6 +207,4 @@ def script_batch(N):
         master.write('./batch_' + str(i+1) + '.sh \n')
     master.close
 
-## Gera arquivo Progress.dat
-# Esse arquivo registra o melhor individuo de cada round do genetico.
-# args: None
+
