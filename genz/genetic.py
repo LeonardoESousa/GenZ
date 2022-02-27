@@ -191,20 +191,26 @@ def get_genes(id_ind):
 
 def script_batch(N):
     data = np.loadtxt('NextGen.dat')
-    num_script = math.ceil(len(data[:,0])/N) 
-
+    num_script = len(data[:,0])/N
+    modulo = len(data[:,0])%N
+    
     m = 0
-    for j in range(num_script):
-        with open('batch_' + str(j+1) + '.sh', 'w') as script:
+    for j in range(int(num_script)):
+        with open('batch_'+str(j+1)+'.sh','w') as script:
             l = 0
             while l < N:
-                script.write('python3 ' + str(data[m,0]) + '\n')
+                script.write('python3 '+ str(data[m,0]) +'\n')
                 l += 1
                 m += 1
 
-    master = open('master.sh', 'w')
-    for i in range(num_script):
-        master.write('./batch_' + str(i+1) + '.sh \n')
-    master.close
+    if (modulo != 0):
+        with open('batch_'+str(int(num_script)+1)+'.sh','w') as script:
+            for i in range(modulo):
+                script.write('python3 '+ str(data[m,0]) +'\n')
+                m += 1
 
-
+    with open ('master.sh', 'w') as master: 
+        for i in range(int(num_script)):
+            master.write('./batch_' + str(i+1) + '.sh \n')
+        if (modulo != 0): 
+            master.write('./batch_' + str(int(num_script)+1) + '.sh \n')
