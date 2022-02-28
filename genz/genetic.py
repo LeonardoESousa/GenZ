@@ -1,7 +1,8 @@
 import numpy as np
 import os
 import random
-import math
+import sys
+import time 
 
 np.set_printoptions(suppress=True)
 
@@ -189,7 +190,7 @@ def get_genes(id_ind):
 # iv) Feitos os arquivos batch, criar um arquivo master.sh com uma linha pra cada arquivo batch gerado. Cada linha
 # deve ter './batch_i.sh &\n' 
 
-def script_batch(N):
+def script_batch(N,prog):
     data = np.loadtxt('NextGen.dat')
     num_script = len(data[:,0])/N
     modulo = len(data[:,0])%N
@@ -199,14 +200,16 @@ def script_batch(N):
         with open('batch_'+str(j+1)+'.sh','w') as script:
             l = 0
             while l < N:
-                script.write('python3 '+ str(data[m,0]) +'\n')
+                script.write('python3 {} {:.0f}\n'.format(prog,data[m,0]))
+                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_*\n'.format(data[m,0]))
                 l += 1
                 m += 1
 
     if (modulo != 0):
         with open('batch_'+str(int(num_script)+1)+'.sh','w') as script:
             for i in range(modulo):
-                script.write('python3 '+ str(data[m,0]) +'\n')
+                script.write('python3 {} {:.0f}\n'.format(prog,data[m,0]))
+                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_*\n'.format(data[m,0]))
                 m += 1
 
     with open ('master.sh', 'w') as master: 
@@ -214,3 +217,33 @@ def script_batch(N):
             master.write('./batch_' + str(i+1) + '.sh \n')
         if (modulo != 0): 
             master.write('./batch_' + str(int(num_script)+1) + '.sh \n')
+
+
+##CHECKS WHETHER JOBS ARE DONE#################################
+def watcher(files):
+    rodando = files.copy()
+    done = []
+    for input in rodando: 
+        try:
+            with open(input[:-3]+'log', 'r') as f:
+                for line in f:
+                    if '#Genetic Job Done!' in line:
+                        done.append(input)
+        except:
+            pass 
+    for elem in done:
+        del rodando[rodando.index(elem)]                                
+    return rodando
+###############################################################
+
+##CHECKS WHETHER JOBS ARE DONE#################################
+def hold_watch(files):
+    rodando = files.copy()
+    while len(rodando) > 0:
+        rodando = watcher(rodando)
+        if 'limit.lx' not in os.listdir('.'):
+            with open('omega.lx','a') as f:
+                f.write('#Aborted!')
+            sys.exit()
+        time.sleep(60)    
+###############################################################
