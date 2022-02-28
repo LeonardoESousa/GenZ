@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+from asyncio import subprocess
 import sys
 import os
 #importing config module
 import importlib
+from genz.genetic import *
 wd = os.getcwd()+'/'
 config_file = wd+sys.argv[1]
 spec  = importlib.util.spec_from_file_location(sys.argv[1].split('.')[0], wd+sys.argv[1])
@@ -23,12 +25,17 @@ genes     = config.genes
 
 def main():
     genes.first_gen()
-    # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.
-    #for n in Range(Num_gen):
-    pass
+    # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.    
+    for num in range(num_gen):
+        sorted_arr = order(maximize)
+        elite(num_elite, sorted_arr, genes)
+        best(sorted_arr, genes)
+        progress(num, sorted_arr, genes)
+        tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
+        script_batch(nproc,prog)
+        watcher(files)
+        hold_watch(files)
+        subprocess.call('python3' + eval)
 
 if __name__ == "__main__":
     sys.exit(main())        
-
-
-

@@ -85,7 +85,7 @@ def order(maximize):
 # args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
 # i) Pega as primeiras N linhas da matriz ordenada, onde N é o numero de elementos na elite.
 # ii) Escreve a matriz no arquivo Elite.dat 
-def elite(num_elite,sorted_arr,genes):
+def elite(num_elite, sorted_arr, genes):
     np.savetxt('Elite.dat',sorted_arr[0:num_elite,:], delimiter='\t',fmt=genes.fmts+['%.3f'])
 
 ## Best (Pedao)
@@ -95,8 +95,8 @@ def elite(num_elite,sorted_arr,genes):
 # ii) No mesmo arquivo, escrever a média e o desvio padrão dos genes do melhor cara. Usar o np.mean e np.std que já calcula o de todas as colunas de uma vez.
 # Usar o np.savetxt pra escrever no mesmo arquivo.
 
-def Best(matriz_ordenada,genes):
-   with open('Best.dat', 'w') as file:
+def best(matriz_ordenada,genes):
+    with open('Best.dat', 'w') as file:
         melhor_indiv=[matriz_ordenada[0,:]]
         best_fitness=matriz_ordenada[0,-1]
         #best_fitness=10  #descomente para debug
@@ -112,11 +112,17 @@ def Best(matriz_ordenada,genes):
         np.savetxt(file,melhor_indiv,fmt=genes.fmts,delimiter='\t')
         np.savetxt(file,media,fmt=genes.fmts,delimiter='\t')
         np.savetxt(file,desvi,fmt=genes.fmts,delimiter='\t')
+    return melhor_indiv
 
-## Gera arquivo Progress.dat
+## Gera arquivo Progress.dat (Laura)
 # Esse arquivo registra o melhor individuo de cada round do genetico.
 # args: numero da geracao (N).
 
+def progress(num_gen, sorted_arr, genes):
+    best_ind = best(sorted_arr, genes)
+    with open('Progress.dat', 'a') as file:
+        best_ind.insert(0,num_gen)
+        np.savetxt(file, best_ind, fmt=genes.fmts, delimiter='\t')
 
 ## Crossover (Laura)
 # args: array com genes de todos os pais
@@ -152,7 +158,7 @@ def mutation(individual):
 #   vii)  Usar o np.vstack para criar um array em que cada linha corresponde a um filho e cada coluna os seus genes. A primeira coluna tem de ser o numero identificador do individuo.
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
-def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
+def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
@@ -170,7 +176,7 @@ def tng(sorted_arr, num_new_gen, num_parents,k,genes, maximize):
     np.savetxt('NextGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
 
 
-## Pega genes
+## Pega genes (Laura)
 # args: id do individuo (int)
 # i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
 # ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
@@ -181,7 +187,7 @@ def get_genes(id_ind):
     return ind_genes
 
 
-## Gera batch script
+## Gera batch script (Laura)
 # args: numero N de jobs por script (int), nome do arquivo (file) .py que vai rodar os calculos de cada indivíduo (str).
 # i) Abre o NextGen.dat e pega a primeira coluna. Esses sao os ids dos calculos que vao rodar.
 # ii) Calcular quantos scripts são necessários. Se vc tem 10 individuos no NextGen e N = 2, são 5 scripts.
