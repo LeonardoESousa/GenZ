@@ -203,26 +203,20 @@ def script_batch(N,prog):
     
     m = 0
     for j in range(int(num_script)):
-        with open('batch_'+str(j+1)+'.sh','w') as script:
+        with open('genbatch_'+str(j+1)+'.sh','w') as script:
             l = 0
             while l < N:
-                script.write('python3 {} {:.0f}\n'.format(prog,data[m,0]))
-                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_*\n'.format(data[m,0]))
+                script.write('{} {:.0f}\n'.format(prog,data[m,0]))
+                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_.log\n'.format(data[m,0]))
                 l += 1
                 m += 1
 
-    if (modulo != 0):
-        with open('batch_'+str(int(num_script)+1)+'.sh','w') as script:
+    if modulo != 0:
+        with open('genbatch_'+str(int(num_script)+1)+'.sh','w') as script:
             for i in range(modulo):
-                script.write('python3 {} {:.0f}\n'.format(prog,data[m,0]))
-                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_*\n'.format(data[m,0]))
+                script.write('{} {:.0f}\n'.format(prog,data[m,0]))
+                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_.log\n'.format(data[m,0]))
                 m += 1
-
-    with open ('master.sh', 'w') as master: 
-        for i in range(int(num_script)):
-            master.write('./batch_' + str(i+1) + '.sh \n')
-        if (modulo != 0): 
-            master.write('./batch_' + str(int(num_script)+1) + '.sh \n')
 
 
 ##CHECKS WHETHER JOBS ARE DONE#################################
@@ -243,13 +237,18 @@ def watcher(files):
 ###############################################################
 
 ##CHECKS WHETHER JOBS ARE DONE#################################
-def hold_watch(files):
-    rodando = files.copy()
+def hold_watch(wd):
+    rodando = [1,1,1]
     while len(rodando) > 0:
+        rodando = [i for i in os.listdir(wd) if 'Individual_' in i and '_.log' in i]
         rodando = watcher(rodando)
         if 'limit.lx' not in os.listdir('.'):
-            with open('omega.lx','a') as f:
+            with open('Progress.dat','a') as f:
                 f.write('#Aborted!')
             sys.exit()
-        time.sleep(60)    
+        time.sleep(30)    
 ###############################################################
+
+def killswitch():
+    with open('limit.lx', 'w') as f:
+        f.write('Running')

@@ -1,9 +1,9 @@
 from genz.genetic import *
 
 #Program
-prog = 'predict.py'
+prog = 'python3 predict.py'
 #evaluation script
-eval = "eval.py"
+eval = "python3 eval.py"
 #coefficient for mutations
 kappa = 0.3
 #Maximize?
@@ -16,6 +16,10 @@ num_gen = 100
 num_elite = 5
 #Number of crossings
 num_cross = 20
+#Number of parents
+num_parents = 3
+#Batch script
+batch = 'batch.sh'
 
 
 ## Cria instancia da classe Genes
