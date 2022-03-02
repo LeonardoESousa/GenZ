@@ -265,6 +265,7 @@ def evaluate(func,genes):
             id = ind.split('_')[1]
             params = get_genes(id)
             fitness = func(ind)
-            np.insert(params,-1,fitness)
+            params = np.append(params,fitness)
+            params = np.insert(params,0,float(id))
             np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')      
             
