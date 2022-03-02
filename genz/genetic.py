@@ -13,7 +13,7 @@ class Genes():
         self.limits  = {}
         self.formats = {}
         self.fmts    = ['%d']
-        self.precision   = ['%.{}f'.format(kwargs['precision'])
+        self.precision   = ['%.{}f'.format(kwargs['precision'])]
         self.population  = kwargs['population']
 
     def add_gene(self,**kwargs):
