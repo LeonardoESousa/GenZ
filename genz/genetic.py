@@ -121,7 +121,7 @@ def best(matriz_ordenada,genes):
 
 def progress(num_gen, best_ind, genes):
     with open('Progress.dat', 'a') as file:
-        best_ind.insert(0,num_gen)
+        best_ind = np.insert(best_ind,0,num_gen)
         np.savetxt(file, [best_ind], fmt=['%.0f'] + genes.fmts + genes.precision, delimiter='\t')
 
 ## Crossover (Laura)
