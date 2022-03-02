@@ -1,7 +1,9 @@
 from genz.genetic import *
+import numpy as np
 
 def evaluate(log):
-    return 5
+    res = np.loadtxt(log)
+    return res
 
 
 
@@ -25,10 +27,12 @@ num_cross = 20
 num_parents = 3
 #Batch script
 batch = 'batch.sh'
+#Decimal places in fitness function
+prec  = 3
 
 
 ## Cria instancia da classe Genes
-genes = Genes(population=num_cross)
+genes = Genes(population=num_cross, precision=prec)
 ## Adiciona um gene de tipo float, com valores de 0 a 100 e duas casas decimais
 genes.add_gene(type=float, space=[-5,5], format=3)
 genes.add_gene(type=float, space=[-5,5], format=3)

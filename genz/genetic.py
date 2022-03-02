@@ -13,6 +13,7 @@ class Genes():
         self.limits  = {}
         self.formats = {}
         self.fmts    = ['%d']
+        self.precision   = ['%.{}f'.format(kwargs['precision'])
         self.population  = kwargs['population']
 
     def add_gene(self,**kwargs):
@@ -109,9 +110,9 @@ def best(matriz_ordenada,genes):
         media=[media[1:-1]]
         desvi=np.std(melhor_indiv,axis=0)
         desvi=[desvi[1:-1]]
-        np.savetxt(file,melhor_indiv,fmt=genes.fmts,delimiter='\t')
-        np.savetxt(file,media,fmt=genes.fmts,delimiter='\t')
-        np.savetxt(file,desvi,fmt=genes.fmts,delimiter='\t')
+        np.savetxt(file,melhor_indiv,fmt=genes.fmts + genes.precision,delimiter='\t')
+        np.savetxt(file,media,fmt=genes.fmts[1:],delimiter='\t')
+        np.savetxt(file,desvi,fmt=genes.fmts[1:],delimiter='\t')
     return melhor_indiv
 
 ## Gera arquivo Progress.dat (Laura)
@@ -121,7 +122,7 @@ def best(matriz_ordenada,genes):
 def progress(num_gen, best_ind, genes):
     with open('Progress.dat', 'a') as file:
         best_ind.insert(0,num_gen)
-        np.savetxt(file, best_ind, fmt=['%.0f'] + genes.fmts, delimiter='\t')
+        np.savetxt(file, [best_ind], fmt=['%.0f'] + genes.fmts + genes.precision, delimiter='\t')
 
 ## Crossover (Laura)
 # args: array com genes de todos os pais
@@ -142,7 +143,7 @@ def crossover(parents,id_new_gen):
 # new_gene = genes.mutation(1,0) - Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
-def mutation(individual):
+def mutation(individual,kappa):
     return individual
 
 
@@ -262,8 +263,8 @@ def evaluate(func,genes):
     with open('Report.dat', 'w') as f:
         for ind in individuals:
             id = ind.split('_')[1]
-            genes = get_genes(id)
+            params = get_genes(id)
             fitness = func(ind)
-            np.insert(genes,-1,fitness)
-            np.savetxt(f,genes,fmt=genes.fmts,delimiter='\t')      
+            np.insert(params,-1,fitness)
+            np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')      
             
