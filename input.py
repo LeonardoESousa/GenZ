@@ -1,9 +1,14 @@
 from genz.genetic import *
 
+def evaluate(log):
+    return 5
+
+
+
 #Program
-prog = 'python3 predict.py'
+prog = 'python3 program.py'
 #evaluation script
-eval = "python3 eval.py"
+eval = evaluate
 #coefficient for mutations
 kappa = 0.3
 #Maximize?

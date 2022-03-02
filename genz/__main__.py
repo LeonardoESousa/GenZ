@@ -2,12 +2,13 @@
 import subprocess
 import sys
 import os
+import shutil
 #importing config module
 import importlib
 from genz.genetic import *
 wd = os.getcwd()+'/'
 config_file = wd+sys.argv[1]
-spec  = importlib.util.spec_from_file_location(sys.argv[1].split('.')[0], wd+sys.argv[1])
+spec   = importlib.util.spec_from_file_location(sys.argv[1].split('.')[0], wd+sys.argv[1])
 config = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(config)
 
@@ -25,22 +26,26 @@ num_parents = config.num_parents
 batch       = config.batch
 
 def main():
-    killswitch()
+    killswitch(wd)
     genes.first_gen()
     # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.    
     for num in range(1,num_gen+1):
         script_batch(nproc,prog)
         scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
         for script in scripts:
-            subprocess.call(['bash',script])
+            subprocess.call(['bash', batch, script])
         hold_watch(wd)
-        subprocess.call(eval)
+        for script in scripts:
+            os.remove(wd + script)
+        evaluate(eval,genes)
+        individual = [i for i in os.listdir(wd) if 'Individual_' in i]
+        for i in individual:
+            shutil.move(wd + i, wd + 'Logs/'+ i)
         sorted_arr = order(maximize)
         elite(num_elite, sorted_arr, genes)
-        best(sorted_arr, genes)
-        progress(num, sorted_arr, genes)
+        best_ind = best(sorted_arr, genes)
+        progress(num, best_ind, genes)
         tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
-        script_batch(nproc,prog)
         
         
 

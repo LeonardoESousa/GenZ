@@ -118,11 +118,10 @@ def best(matriz_ordenada,genes):
 # Esse arquivo registra o melhor individuo de cada round do genetico.
 # args: numero da geracao (N).
 
-def progress(num_gen, sorted_arr, genes):
-    best_ind = best(sorted_arr, genes)
+def progress(num_gen, best_ind, genes):
     with open('Progress.dat', 'a') as file:
         best_ind.insert(0,num_gen)
-        np.savetxt(file, best_ind, fmt=genes.fmts, delimiter='\t')
+        np.savetxt(file, best_ind, fmt=['%.0f'] + genes.fmts, delimiter='\t')
 
 ## Crossover (Laura)
 # args: array com genes de todos os pais
@@ -174,17 +173,6 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
         id_new_gen += 1
     next_gen = next_gen[1:,:]
     np.savetxt('NextGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
-
-
-## Pega genes (Laura)
-# args: id do individuo (int)
-# i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
-# ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
-def get_genes(id_ind):
-    data = np.loadtxt('NextGen.dat')
-    id = np.where(data[:,0] == id_ind)[0][0]
-    ind_genes = data[id,1:]
-    return ind_genes
 
 
 ## Gera batch script (Laura)
@@ -249,6 +237,33 @@ def hold_watch(wd):
         time.sleep(30)    
 ###############################################################
 
-def killswitch():
-    with open('limit.lx', 'w') as f:
+def killswitch(wd):
+    try:
+        os.mkdir(wd + 'Logs')
+    except:
+        pass
+    with open(wd + 'limit.lx', 'w') as f:
         f.write('Running')
+
+## Pega genes (Laura)
+# args: id do individuo (int)
+# i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
+# ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
+def get_genes(id_ind):
+    id_ind = float(id_ind)
+    data = np.loadtxt('NextGen.dat')
+    id = np.where(data[:,0] == id_ind)[0][0]
+    ind_genes = data[id,1:]
+    return ind_genes
+
+
+def evaluate(func,genes):
+    individuals = [i for i in os.listdir('.') if 'Individual_' in i and '.log' in i]
+    with open('Report.dat', 'w') as f:
+        for ind in individuals:
+            id = ind.split('_')[1]
+            genes = get_genes(id)
+            fitness = func(ind)
+            genes.insert(-1,fitness)
+            np.savetxt(f,genes,fmt=genes.fmts,delimiter='\t')      
+            
