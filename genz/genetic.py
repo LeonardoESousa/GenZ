@@ -195,7 +195,7 @@ def script_batch(N,prog):
             l = 0
             while l < N:
                 script.write('{} {:.0f}\n'.format(prog,data[m,0]))
-                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_.log\n'.format(data[m,0]))
+                script.write('echo "\n#Genetic Job Done!" >> Individual_{:.0f}_.log\n'.format(data[m,0]))
                 l += 1
                 m += 1
 
@@ -203,7 +203,7 @@ def script_batch(N,prog):
         with open('genbatch_'+str(int(num_script)+1)+'.sh','w') as script:
             for i in range(modulo):
                 script.write('{} {:.0f}\n'.format(prog,data[m,0]))
-                script.write('echo #Genetic Job Done! >> Individual_{:.0f}_.log\n'.format(data[m,0]))
+                script.write('echo "\n#Genetic Job Done!" >> Individual_{:.0f}_.log\n'.format(data[m,0]))
                 m += 1
 
 
@@ -264,6 +264,6 @@ def evaluate(func,genes):
             id = ind.split('_')[1]
             genes = get_genes(id)
             fitness = func(ind)
-            genes.insert(-1,fitness)
+            np.insert(genes,-1,fitness)
             np.savetxt(f,genes,fmt=genes.fmts,delimiter='\t')      
             
