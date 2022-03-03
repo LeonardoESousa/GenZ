@@ -98,6 +98,7 @@ def elite(num_elite, sorted_arr, genes):
 
 def best(matriz_ordenada,genes):
     with open('Best.dat', 'w') as file:
+        file.write('#Best individual:\n')
         melhor_indiv=[matriz_ordenada[0,:]]
         best_fitness=matriz_ordenada[0,-1]
         #best_fitness=10  #descomente para debug
