@@ -111,7 +111,11 @@ def best(matriz_ordenada,genes):
         desvi=np.std(melhor_indiv,axis=0)
         desvi=[desvi[1:-1]]
         np.savetxt(file,melhor_indiv,fmt=genes.fmts + genes.precision,delimiter='\t')
+        file.write('\n\n')
+        file.write('#Average Gene Values:\n')
         np.savetxt(file,media,fmt=genes.fmts[1:],delimiter='\t')
+        file.write('\n')
+        file.write('#Standard Deviation:\n')
         np.savetxt(file,desvi,fmt=genes.fmts[1:],delimiter='\t')
     return melhor_indiv
 
@@ -143,7 +147,12 @@ def crossover(parents,id_new_gen):
 # new_gene = genes.mutation(1,0) - Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
-def mutation(individual,kappa):
+def mutation(individual,genes,kappa,sigma):
+    prob = np.exp(-sigma/kappa)
+    for num in range(np.shape(individual)[1]):
+        if random.uniform(0,1) <= prob:
+            new_gene = genes.mutation(num,individual[0,num])
+            individual[0,num] = new_gene
     return individual
 
 
@@ -162,6 +171,11 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
+    try:
+        elite = np.loadtxt('Elite.dat')[:,-1]
+        sigma = np.nan_to_num(np.std(elite)/np.mean(elite))
+    except:
+        sigma = k
     for i in range(0,num_new_gen):
         if maximize:
             indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
@@ -169,7 +183,7 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
             indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/fitness), k=num_parents)
         parents = sorted_arr[indices,:] 
         new_individual = crossover(parents,id_new_gen)
-        new_individual = mutation(new_individual,k)
+        new_individual = mutation(new_individual,genes,k,sigma)
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
