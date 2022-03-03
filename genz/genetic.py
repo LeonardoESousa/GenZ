@@ -149,9 +149,9 @@ def crossover(parents,id_new_gen):
 # iii) Funcao retorna um array com os genes do filho. 
 def mutation(individual,genes,kappa,sigma):
     prob = np.exp(-sigma/kappa)
-    for num in range(np.shape(individual)[1]):
+    for num in range(1,np.shape(individual)[1]):
         if random.uniform(0,1) <= prob:
-            new_gene = genes.mutation(num,individual[0,num])
+            new_gene = genes.mutation(num-1,individual[0,num])
             individual[0,num] = new_gene
     return individual
 
