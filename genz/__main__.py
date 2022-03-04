@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os
 import shutil
+import time
 #importing config module
 import importlib
 from genz.genetic import *
@@ -26,6 +27,7 @@ num_parents = config.num_parents
 batch       = config.batch
 
 def main():
+    deltat = 30
     try:
         initial = int(max(np.loadtxt('Progress.dat')[:,0])) + 1
     except:
@@ -38,7 +40,9 @@ def main():
         scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
         for script in scripts:
             subprocess.call(['bash', batch, script])
-        hold_watch(wd)
+        start_time = time.time()
+        hold_watch(wd,deltat/4)
+        deltat = time.time() - start_time
         for script in scripts:
             os.remove(wd + script)
         evaluate(eval,genes)

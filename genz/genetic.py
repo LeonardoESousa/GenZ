@@ -244,7 +244,7 @@ def watcher(files):
 ###############################################################
 
 ##CHECKS WHETHER JOBS ARE DONE#################################
-def hold_watch(wd):
+def hold_watch(wd,deltat):
     rodando = [1,1,1]
     while len(rodando) > 0:
         rodando = [i for i in os.listdir(wd) if 'Individual_' in i and '_.log' in i]
@@ -253,7 +253,7 @@ def hold_watch(wd):
             with open('Progress.dat','a') as f:
                 f.write('#Aborted!')
             sys.exit()
-        time.sleep(30)    
+        time.sleep(deltat)    
 ###############################################################
 
 def killswitch(wd):
