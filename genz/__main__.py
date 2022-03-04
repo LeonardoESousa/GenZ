@@ -27,7 +27,7 @@ batch       = config.batch
 
 def main():
     try:
-        initial = max(np.loadtxt('Progress.dat')[:,0])
+        initial = int(max(np.loadtxt('Progress.dat')[:,0]))
     except:
         genes.first_gen()
         initial = 1
