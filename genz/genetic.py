@@ -101,11 +101,9 @@ def best(matriz_ordenada,genes):
         file.write('#Best individual:\n')
         melhor_indiv=[matriz_ordenada[0,:]]
         best_fitness=matriz_ordenada[0,-1]
-        #best_fitness=10  #descomente para debug
         i=1
         while matriz_ordenada[i,-1] == best_fitness:
             melhor_indiv=np.vstack((melhor_indiv,matriz_ordenada[i,:]))
-            #best_fitness=9  #descomente para debug
             i += 1
         media=np.mean(melhor_indiv,axis=0)
         media=[media[1:-1]]
@@ -125,6 +123,10 @@ def best(matriz_ordenada,genes):
 # args: numero da geracao (N).
 
 def progress(num_gen, best_ind, genes):
+    try:
+        best_ind = best_ind[0,:]
+    except:
+        pass
     with open('Progress.dat', 'a') as file:
         best_ind = np.insert(best_ind,0,num_gen)
         np.savetxt(file, [best_ind], fmt=['%.0f'] + genes.fmts + genes.precision, delimiter='\t')
@@ -149,8 +151,9 @@ def crossover(parents,id_new_gen):
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
 def mutation(individual,genes,kappa,sigma):
-    prob = np.exp(-sigma/kappa)
-    for num in range(1,np.shape(individual)[1]):
+    total = np.shape(individual)[1]
+    prob = np.exp(-sigma/kappa)/total
+    for num in range(1,total):
         if random.uniform(0,1) <= prob:
             new_gene = genes.mutation(num-1,individual[0,num])
             individual[0,num] = new_gene
@@ -174,7 +177,7 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     try:
         elite = np.loadtxt('Elite.dat')[:,-1]
-        sigma = np.nan_to_num(np.std(elite)/np.mean(elite))
+        sigma = np.nan_to_num(np.std(elite)/abs(np.mean(elite)))
     except:
         sigma = k
     for i in range(0,num_new_gen):
@@ -279,7 +282,10 @@ def evaluate(func,genes):
         for ind in individuals:
             id = ind.split('_')[1]
             params = get_genes(id)
-            fitness = func(ind)
+            try:
+                fitness = max(0,func(ind))
+            except:
+                fitness = 0
             params = np.append(params,fitness)
             params = np.insert(params,0,float(id))
             np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')      
