@@ -26,10 +26,14 @@ num_parents = config.num_parents
 batch       = config.batch
 
 def main():
+    try:
+        initial = max(np.loadtxt('Progress.dat')[:,0])
+    except:
+        genes.first_gen()
+        initial = 1
     killswitch(wd)
-    genes.first_gen()
     # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.    
-    for num in range(1,num_gen+1):
+    for num in range(initial,num_gen+1):
         script_batch(nproc,prog)
         scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
         for script in scripts:
