@@ -4,6 +4,7 @@ import random
 import sys
 import time 
 
+random.seed(1)
 np.set_printoptions(suppress=True)
 
 class Genes():
