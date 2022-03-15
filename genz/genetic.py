@@ -102,7 +102,7 @@ def best(matriz_ordenada,genes):
         melhor_indiv=[matriz_ordenada[0,:]]
         best_fitness=matriz_ordenada[0,-1]
         i=1
-        while matriz_ordenada[i,-1] == best_fitness:
+        while matriz_ordenada[i,-1] == best_fitness and i < np.shape(matriz_ordenada)[0]:
             melhor_indiv=np.vstack((melhor_indiv,matriz_ordenada[i,:]))
             i += 1
         media=np.mean(melhor_indiv,axis=0)
