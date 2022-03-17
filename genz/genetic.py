@@ -5,6 +5,7 @@ import sys
 import time 
 
 random.seed(1)
+np.random.seed(1)
 np.set_printoptions(suppress=True)
 
 class Genes():
@@ -278,7 +279,7 @@ def get_genes(id_ind):
 
 
 def evaluate(func,genes):
-    individuals = [i for i in os.listdir('.') if 'Individual_' in i and '.log' in i]
+    individuals = sorted([i for i in os.listdir('.') if 'Individual_' in i and '.log' in i])
     with open('Report.dat', 'w') as f:
         for ind in individuals:
             id = ind.split('_')[1]
