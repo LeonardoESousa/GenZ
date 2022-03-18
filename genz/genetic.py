@@ -249,7 +249,9 @@ def watcher(files):
 def hold_watch(wd,deltat):
     rodando = [1,1,1]
     while len(rodando) > 0:
-        rodando = [i for i in os.listdir(wd) if 'Individual_' in i and '_.log' in i]
+        logs = [i for i in os.listdir(wd) if 'Individual_' in i and '_.log' in i]
+        if len(logs) > 0:
+            rodando = logs
         rodando = watcher(rodando)
         if 'limit.lx' not in os.listdir('.'):
             with open('Progress.dat','a') as f:
