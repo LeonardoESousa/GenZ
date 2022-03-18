@@ -246,13 +246,12 @@ def watcher(files):
 ###############################################################
 
 ##CHECKS WHETHER JOBS ARE DONE#################################
-def hold_watch(wd,deltat):
+def hold_watch(wd,deltat,num_cross):
     rodando = [1,1,1]
     while len(rodando) > 0:
         logs = [i for i in os.listdir(wd) if 'Individual_' in i and '_.log' in i]
-        if len(logs) > 0:
-            rodando = logs
-        rodando = watcher(rodando)
+        if len(logs) == num_cross:
+            rodando = watcher(logs)
         if 'limit.lx' not in os.listdir('.'):
             with open('Progress.dat','a') as f:
                 f.write('#Aborted!')
