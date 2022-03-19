@@ -31,7 +31,7 @@ class Genes():
 
     def mutation(self,num,gene):
         if self.types[num] !=  float:
-            lista = self.limits[num]
+            lista = self.limits[num].copy()
             del lista[lista.index(gene)]
             new_gene = random.choice(lista)
         else:
