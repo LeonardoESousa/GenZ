@@ -90,6 +90,9 @@ def order(maximize):
 # ii) Escreve a matriz no arquivo Elite.dat 
 def elite(num_elite, sorted_arr, genes):
     np.savetxt('Elite.dat',sorted_arr[0:num_elite,:], delimiter='\t',fmt=genes.fmts+['%.3f'])
+    with open('Avg_Elite.dat', 'a') as f, open('Std_Elite.dat', 'a') as g: 
+        np.savetxt(f,[np.mean(sorted_arr[0:num_elite,1:],axis=0)], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
+        np.savetxt(g,[np.std(sorted_arr[0:num_elite,1:],axis=0)], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
 
 ## Best (Pedao)
 # args: matriz ordenada que sai da funcao order (numpy array).
@@ -154,7 +157,7 @@ def crossover(parents,id_new_gen):
 # iii) Funcao retorna um array com os genes do filho. 
 def mutation(individual,genes,kappa,sigma):
     total = np.shape(individual)[1]
-    prob = np.exp(-sigma/kappa)/total
+    prob = np.exp(-sigma/kappa)
     for num in range(1,total):
         if random.uniform(0,1) <= prob:
             new_gene = genes.mutation(num-1,individual[0,num])
