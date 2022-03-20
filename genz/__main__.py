@@ -39,7 +39,7 @@ def main():
         script_batch(nproc,prog)
         scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
         for script in scripts:
-            subprocess.call(['bash', batch, script])
+            subprocess.Popen(['bash', batch, script])
         start_time = time.time()
         hold_watch(wd,deltat/4,num_cross)
         deltat = time.time() - start_time
