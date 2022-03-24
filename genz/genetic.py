@@ -181,8 +181,7 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     try:
-        elite = np.loadtxt('Elite.dat')[:,-1]
-        sigma = np.nan_to_num(np.std(elite)/abs(np.mean(elite)))
+        sigma = np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
         sigma = k
     for i in range(0,num_new_gen):
