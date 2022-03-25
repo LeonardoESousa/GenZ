@@ -78,7 +78,10 @@ def get_by_id(id_ind,file):
 
 def get_avg(folder='.'):
     data = np.loadtxt(folder+'/Avg_Elite.dat')
-    data = data[:,:-1]
+    try:
+        data = data[:,:-1]
+    except:
+        data = data[:-1]
     return data
 
 ## max_id (Pedao)
@@ -199,13 +202,13 @@ def mutation(individual,genes,kappa,sigma):
     return individual
 
 def inject_avg(id_new_gen):
+    genes = get_avg()
     try:
-        genes = get_avg()
         genes = genes[-1,:]
-        genes = np.insert(genes,0,id_new_gen)
-        genes = genes[np.newaxis,:]
     except:
-        genes = None    
+        pass    
+    genes = np.insert(genes,0,id_new_gen)
+    genes = genes[np.newaxis,:]
     return genes
     
 
@@ -230,8 +233,9 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
         sigma = k
     injection = False
     for _ in range(0,num_new_gen):
-        if not injection and 'Elite.dat' in os.listdir('.'):
+        if not injection:
             new_individual = inject_avg(id_new_gen)
+            new_individual = mutation(new_individual,genes,k,sigma)
             injection = True       
         else:
             if maximize:
