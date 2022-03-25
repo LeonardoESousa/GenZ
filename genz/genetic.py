@@ -88,11 +88,18 @@ def order(maximize):
 # args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
 # i) Pega as primeiras N linhas da matriz ordenada, onde N é o numero de elementos na elite.
 # ii) Escreve a matriz no arquivo Elite.dat 
-def elite(num_elite, sorted_arr, genes):
-    np.savetxt('Elite.dat',sorted_arr[0:num_elite,:], delimiter='\t',fmt=genes.fmts+['%.3f'])
+def elite(num_elite, sorted_arr, genes,maximize):
+    top = sorted_arr[0:num_elite,:]
+    np.savetxt('Elite.dat',top, delimiter='\t',fmt=genes.fmts+['%.3f'])
+    if maximize:
+        weights = top[:,-1]
+    else:
+        weights = 1/top[:,-1]
     with open('Avg_Elite.dat', 'a') as f, open('Std_Elite.dat', 'a') as g: 
-        np.savetxt(f,[np.mean(sorted_arr[0:num_elite,1:],axis=0)], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
-        np.savetxt(g,[np.std(sorted_arr[0:num_elite,1:],axis=0)], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
+        average = np.average(top[:,1:],axis=0, weights=weights)
+        np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
+        std = np.sqrt(np.average((top[:,1:]-average)**2, weights=weights))
+        np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
 
 ## Best (Pedao)
 # args: matriz ordenada que sai da funcao order (numpy array).
