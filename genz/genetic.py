@@ -230,10 +230,10 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
         sigma = k
     injection = False
     for _ in range(0,num_new_gen):
-        if not injection:
+        if not injection and 'Elite.dat' in os.listdir('.'):
             new_individual = inject_avg(id_new_gen)
             injection = True       
-        elif injection or new_individual == None:
+        else:
             if maximize:
                 indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
             else:
