@@ -125,7 +125,7 @@ def elite(num_elite, sorted_arr, genes,maximize):
     with open('Avg_Elite.dat', 'a') as f, open('Std_Elite.dat', 'a') as g: 
         average = np.average(top[:,1:],axis=0, weights=weights)
         np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
-        std = np.sqrt(np.average((top[:,1:]-average)**2, weights=weights))
+        std = np.sqrt(np.average((top[:,1:]-average)**2, axis=0, weights=weights))
         np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
 
 ## Best (Pedao)
