@@ -203,6 +203,7 @@ def inject_avg(id_new_gen):
         genes = get_avg()
         genes = genes[-1,:]
         genes = np.insert(genes,0,id_new_gen)
+        genes = genes[np.newaxis,:]
     except:
         genes = None    
     return genes
