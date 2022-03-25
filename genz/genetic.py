@@ -280,6 +280,23 @@ def get_genes(id_ind):
     ind_genes = data[id,1:]
     return ind_genes
 
+def get_best_genes(folder='.'):
+    data = np.loadtxt(folder+'/Best.dat')
+    data = data[0,1:-1]
+    return data
+
+def get_by_id(id_ind,file):
+    id_ind = float(id_ind)
+    data = np.loadtxt(file)
+    id = np.where(data[:,0] == id_ind)[0][0]
+    ind_genes = data[id,1:]
+    return ind_genes
+
+def get_avg(folder='.'):
+    data = np.loadtxt(folder+'/Avg_Elite.dat')
+    data = data[:,:-1]
+    return data
+
 
 def evaluate(func,genes):
     individuals = sorted([i for i in os.listdir('.') if 'Individual_' in i and '.log' in i])

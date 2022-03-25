@@ -42,7 +42,7 @@ def main():
             subprocess.Popen(['bash', batch, script])
         start_time = time.time()
         hold_watch(wd,deltat/4,num_cross)
-        deltat = time.time() - start_time
+        deltat = min(time.time() - start_time,120)
         for script in scripts:
             os.remove(wd + script)
         evaluate(eval,genes)
