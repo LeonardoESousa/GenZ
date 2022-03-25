@@ -53,6 +53,33 @@ class Genes():
         first = first[1:,:]
         np.savetxt('NextGen.dat', first, fmt=self.fmts, delimiter='\t')
 
+## Pega genes (Laura)
+# args: id do individuo (int)
+# i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
+# ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
+def get_genes(id_ind):
+    id_ind = float(id_ind)
+    data = np.loadtxt('NextGen.dat')
+    id = np.where(data[:,0] == id_ind)[0][0]
+    ind_genes = data[id,1:]
+    return ind_genes
+
+def get_best_genes(folder='.'):
+    data = np.loadtxt(folder+'/Best.dat')
+    data = data[0,1:-1]
+    return data
+
+def get_by_id(id_ind,file):
+    id_ind = float(id_ind)
+    data = np.loadtxt(file)
+    id = np.where(data[:,0] == id_ind)[0][0]
+    ind_genes = data[id,1:]
+    return ind_genes
+
+def get_avg(folder='.'):
+    data = np.loadtxt(folder+'/Avg_Elite.dat')
+    data = data[:,:-1]
+    return data
 
 ## max_id (Pedao)
 # args: None
@@ -171,6 +198,15 @@ def mutation(individual,genes,kappa,sigma):
             individual[0,num] = new_gene
     return individual
 
+def inject_avg(id_new_gen):
+    try:
+        genes = get_avg()
+        genes = genes[-1,:]
+        genes = np.insert(genes,0,id_new_gen)
+    except:
+        genes = None    
+    return genes
+    
 
 ## TNG (Laura)
 # args: matriz ordenada (numpy array), numero de filhos (int), numero de pais (int) (pode ser 2 ou mais), maximize (Boolean)
@@ -191,14 +227,19 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
         sigma = np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
         sigma = k
-    for i in range(0,num_new_gen):
-        if maximize:
-            indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
-        else:
-            indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/fitness), k=num_parents)
-        parents = sorted_arr[indices,:] 
-        new_individual = crossover(parents,id_new_gen)
-        new_individual = mutation(new_individual,genes,k,sigma)
+    injection = False
+    for _ in range(0,num_new_gen):
+        if not injection:
+            new_individual = inject_avg(id_new_gen)
+            injection = True       
+        elif injection or new_individual == None:
+            if maximize:
+                indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
+            else:
+                indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/fitness), k=num_parents)
+            parents = sorted_arr[indices,:] 
+            new_individual = crossover(parents,id_new_gen)
+            new_individual = mutation(new_individual,genes,k,sigma)
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
@@ -275,34 +316,6 @@ def killswitch(wd):
         pass
     with open(wd + 'limit.lx', 'w') as f:
         f.write('Running')
-
-## Pega genes (Laura)
-# args: id do individuo (int)
-# i) Abre o NextGen.dat, encontra a linha que corresponde ao id.
-# ii) Retorna um array com os genes correspondentes a esse id. O array deve conter apenas os genes.
-def get_genes(id_ind):
-    id_ind = float(id_ind)
-    data = np.loadtxt('NextGen.dat')
-    id = np.where(data[:,0] == id_ind)[0][0]
-    ind_genes = data[id,1:]
-    return ind_genes
-
-def get_best_genes(folder='.'):
-    data = np.loadtxt(folder+'/Best.dat')
-    data = data[0,1:-1]
-    return data
-
-def get_by_id(id_ind,file):
-    id_ind = float(id_ind)
-    data = np.loadtxt(file)
-    id = np.where(data[:,0] == id_ind)[0][0]
-    ind_genes = data[id,1:]
-    return ind_genes
-
-def get_avg(folder='.'):
-    data = np.loadtxt(folder+'/Avg_Elite.dat')
-    data = data[:,:-1]
-    return data
 
 
 def evaluate(func,genes):
