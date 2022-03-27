@@ -14,7 +14,7 @@ class Genes():
         self.types   = {}
         self.limits  = {}
         self.formats = {}
-        self.fmts    = ['%d']
+        self.fmts    = ['%.0f']
         self.precision   = ['%.{}f'.format(kwargs['precision'])]
         self.population  = kwargs['population']
 
@@ -27,7 +27,7 @@ class Genes():
             self.formats[num] = kwargs['format']
             self.fmts.append('%+.{}f'.format(kwargs['format']))
         else:
-            self.fmts.append('%d')    
+            self.fmts.append('%.0f')    
 
     def mutation(self,num,gene):
         if self.types[num] !=  float:
@@ -120,16 +120,16 @@ def order(maximize):
 # ii) Escreve a matriz no arquivo Elite.dat 
 def elite(num_elite, sorted_arr, genes,maximize):
     top = sorted_arr[0:num_elite,:]
-    np.savetxt('Elite.dat',top, delimiter='\t',fmt=genes.fmts+['%.3f'])
+    np.savetxt('Elite.dat',top, delimiter='\t',fmt=genes.fmts+genes.precision)
     if maximize:
         weights = top[:,-1]
     else:
         weights = 1/top[:,-1]
     with open('Avg_Elite.dat', 'a') as f, open('Std_Elite.dat', 'a') as g: 
         average = np.average(top[:,1:],axis=0, weights=weights)
-        np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
+        np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
         std = np.sqrt(np.average((top[:,1:]-average)**2, axis=0, weights=weights))
-        np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+['%.3f'])
+        np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
 
 ## Best (Pedao)
 # args: matriz ordenada que sai da funcao order (numpy array).
