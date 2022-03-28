@@ -14,6 +14,7 @@ class Genes():
         self.types   = {}
         self.limits  = {}
         self.formats = {}
+        self.probs   = {}
         self.fmts    = ['%.0f']
         self.precision   = ['%.{}f'.format(kwargs['precision'])]
         self.population  = kwargs['population']
@@ -28,6 +29,10 @@ class Genes():
             self.fmts.append('%+.{}f'.format(kwargs['format']))
         else:
             self.fmts.append('%.0f')    
+        try:
+            self.probs[num] = kwargs['probs']
+        except:    
+            self.probs[num] = np.ones(len(self.limits))     
 
     def mutation(self,num,gene):
         if self.types[num] !=  float:
@@ -46,7 +51,7 @@ class Genes():
             linha[0,0] = i
             for g in self.genes:
                 if self.types[g] != float:
-                    linha[0,g+1] = random.choice(self.limits[g])
+                    linha[0,g+1] = random.choices(self.limits[g], weights=self.probs[g])
                 else:
                     linha[0,g+1] = np.round(np.random.uniform(self.limits[g][0],self.limits[g][-1]),self.formats[g])
             first = np.vstack((first,linha))
