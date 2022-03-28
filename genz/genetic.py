@@ -32,7 +32,7 @@ class Genes():
         try:
             self.probs[num] = kwargs['probs']
         except:    
-            self.probs[num] = np.ones(len(self.limits))     
+            self.probs[num] = np.ones(len(self.limits[num]))     
 
     def mutation(self,num,gene):
         if self.types[num] !=  float:
