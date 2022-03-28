@@ -51,7 +51,7 @@ class Genes():
             linha[0,0] = i
             for g in self.genes:
                 if self.types[g] != float:
-                    linha[0,g+1] = random.choices(self.limits[g], weights=self.probs[g])
+                    linha[0,g+1] = random.choices(self.limits[g], weights=self.probs[g])[0]
                 else:
                     linha[0,g+1] = np.round(np.random.uniform(self.limits[g][0],self.limits[g][-1]),self.formats[g])
             first = np.vstack((first,linha))
