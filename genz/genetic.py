@@ -330,7 +330,7 @@ def killswitch(wd):
 
 def evaluate(func,genes):
     individuals = sorted([i for i in os.listdir('.') if 'Individual_' in i and '.log' in i])
-    with open('Report.dat', 'w') as f:
+    with open('Report.dat', 'w') as f, open('Space.dat', 'a') as g:
         for ind in individuals:
             id = ind.split('_')[1]
             params = get_genes(id)
@@ -340,5 +340,6 @@ def evaluate(func,genes):
                 fitness = 0
             params = np.append(params,fitness)
             params = np.insert(params,0,float(id))
-            np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')      
+            np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')
+            np.savetxt(g,[params],fmt=genes.fmts + genes.precision,delimiter='\t')  
             
