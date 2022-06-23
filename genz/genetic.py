@@ -246,7 +246,7 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
             if maximize:
                 indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
             else:
-                indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/fitness), k=num_parents)
+                indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/(fitness+1e-12)), k=num_parents)
             parents = sorted_arr[indices,:] 
             new_individual = crossover(parents,id_new_gen)
             new_individual = mutation(new_individual,genes,k,sigma)
