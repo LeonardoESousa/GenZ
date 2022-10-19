@@ -34,13 +34,13 @@ class Genes():
         except:    
             self.probs[num] = np.ones(len(self.limits[num]))     
 
-    def mutation(self,num,gene):
+    def mutation(self,num,gene,sigma):
         if self.types[num] !=  float:
             lista = self.limits[num].copy()
             del lista[lista.index(gene)]
             new_gene = random.choice(lista)
         else:
-            new_gene = np.random.uniform(self.limits[num][0],self.limits[num][-1])
+            new_gene = np.random.normal(gene, gene*sigma)
             new_gene = np.round(new_gene,self.formats[num])
         return new_gene 
 
@@ -69,10 +69,10 @@ def get_genes(id_ind):
     ind_genes = data[id,1:]
     return ind_genes
 
-def get_best_genes(folder='.'):
-    data = np.loadtxt(folder+'/Best.dat')
-    data = data[0,1:-1]
-    return data
+#def get_best_genes(folder='.'):
+#    data = np.loadtxt(folder+'/Best.dat')
+#    data = data[0,1:-1]
+#    return data
 
 def get_by_id(id_ind,file):
     id_ind = float(id_ind)
@@ -81,13 +81,13 @@ def get_by_id(id_ind,file):
     ind_genes = data[id,1:]
     return ind_genes
 
-def get_avg(folder='.'):
-    data = np.loadtxt(folder+'/Avg_Elite.dat')
-    try:
-        data = data[:,:-1]
-    except:
-        data = data[:-1]
-    return data
+#def get_avg(folder='.'):
+#    data = np.loadtxt(folder+'/Avg_Elite.dat')
+#    try:
+#        data = data[:,:-1]
+#    except:
+#        data = data[:-1]
+#    return data
 
 ## max_id (Pedao)
 # args: None
@@ -105,13 +105,18 @@ def max_id():
 # i)  Try: Incluir elite no report. 
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
 # iii)Retorna matriz ordenada. 
-def order(maximize):
+def order(maximize, genes):
     data = np.loadtxt('Report.dat')
     try:
         elite = np.loadtxt('Elite.dat')
         data  = np.vstack((data,elite))
     except:
         pass
+    with open('Avg_Population.dat', 'a') as f, open('Std_Population.dat', 'a') as g: 
+        average = np.average(data[:,1:],axis=0)
+        np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
+        std = np.std(data[:,1:], axis=0)
+        np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
     indice = np.argsort(data[:,-1])
     if maximize:
         sorted_arr = data[np.flip(indice),:]
@@ -123,18 +128,11 @@ def order(maximize):
 # args: matriz ordenada que sai da funcao order (numpy array), numero de elementos na elite (int)
 # i) Pega as primeiras N linhas da matriz ordenada, onde N é o numero de elementos na elite.
 # ii) Escreve a matriz no arquivo Elite.dat 
-def elite(num_elite, sorted_arr, genes,maximize):
-    top = sorted_arr[0:num_elite,:]
-    np.savetxt('Elite.dat',top, delimiter='\t',fmt=genes.fmts+genes.precision)
-    if maximize:
-        weights = top[:,-1]
-    else:
-        weights = 1/top[:,-1]
-    with open('Avg_Elite.dat', 'a') as f, open('Std_Elite.dat', 'a') as g: 
-        average = np.average(top[:,1:],axis=0, weights=weights)
-        np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
-        std = np.sqrt(np.average((top[:,1:]-average)**2, axis=0, weights=weights))
-        np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
+def elite(num_elite, sorted_arr, genes):
+    if num_elite > 0:
+        top = sorted_arr[0:num_elite,:]
+        np.savetxt('Elite.dat',top, delimiter='\t',fmt=genes.fmts+genes.precision)
+
 
 ## Best (Pedao)
 # args: matriz ordenada que sai da funcao order (numpy array).
@@ -143,19 +141,24 @@ def elite(num_elite, sorted_arr, genes,maximize):
 # ii) No mesmo arquivo, escrever a média e o desvio padrão dos genes do melhor cara. Usar o np.mean e np.std que já calcula o de todas as colunas de uma vez.
 # Usar o np.savetxt pra escrever no mesmo arquivo.
 
-def best(matriz_ordenada,genes):
+def best(matriz_ordenada,genes,maximize):
+    try:
+        matriz_ordenada = np.vstack((matriz_ordenada,[np.genfromtxt('Best.dat',skip_footer=2)]))
+    except:
+        pass
+    if maximize:
+        best_fitness = max(matriz_ordenada[:,-1])
+    else:        
+        best_fitness = min(matriz_ordenada[:,-1])
+
+    inds = np.where(matriz_ordenada[:,-1] == best_fitness)[0]
+    melhor_indiv = matriz_ordenada[inds,:]
+    media=np.mean(melhor_indiv,axis=0)
+    media=[media[1:-1]]
+    desvi=np.std(melhor_indiv,axis=0)
+    desvi=[desvi[1:-1]]
     with open('Best.dat', 'w') as file:
         file.write('#Best individual:\n')
-        melhor_indiv=[matriz_ordenada[0,:]]
-        best_fitness=matriz_ordenada[0,-1]
-        i=1
-        while matriz_ordenada[i,-1] == best_fitness and i < np.shape(matriz_ordenada)[0]:
-            melhor_indiv=np.vstack((melhor_indiv,matriz_ordenada[i,:]))
-            i += 1
-        media=np.mean(melhor_indiv,axis=0)
-        media=[media[1:-1]]
-        desvi=np.std(melhor_indiv,axis=0)
-        desvi=[desvi[1:-1]]
         np.savetxt(file,melhor_indiv,fmt=genes.fmts + genes.precision,delimiter='\t')
         file.write('\n\n')
         file.write('#Average Gene Values:\n')
@@ -200,21 +203,22 @@ def crossover(parents,id_new_gen):
 def mutation(individual,genes,kappa,sigma):
     total = np.shape(individual)[1]
     prob = np.exp(-sigma/kappa)
-    for num in range(1,total):
-        if random.uniform(0,1) <= prob:
-            new_gene = genes.mutation(num-1,individual[0,num])
-            individual[0,num] = new_gene
+    dice = np.random.uniform(0,1,total-1)
+    for num in range(0,total-1):
+        if dice[num] <= prob[num]:
+            new_gene = genes.mutation(num,individual[0,num+1],sigma[num])
+            individual[0,num+1] = new_gene
     return individual
 
-def inject_avg(id_new_gen):
-    genes = get_avg()
-    try:
-        genes = genes[-1,:]
-    except:
-        pass    
-    genes = np.insert(genes,0,id_new_gen)
-    genes = genes[np.newaxis,:]
-    return genes
+#def inject_avg(id_new_gen):
+#    genes = get_avg()
+#    try:
+#        genes = genes[-1,:]
+#    except:
+#        pass    
+#    genes = np.insert(genes,0,id_new_gen)
+#    genes = genes[np.newaxis,:]
+#    return genes
     
 
 ## TNG (Laura)
@@ -233,23 +237,23 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     try:
-        sigma = np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
+        sigma =  np.nan_to_num(np.abs(np.std(sorted_arr[:,1:],axis=0)/np.mean(sorted_arr[:,1:],axis=0)))   #np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
-        sigma = k
-    injection = False
+        sigma = k*np.ones(sorted_arr[:,1:].shape())
+    #injection = False
     for _ in range(0,num_new_gen):
-        if not injection:
-            new_individual = inject_avg(id_new_gen)
-            new_individual = mutation(new_individual,genes,k,sigma)
-            injection = True       
+        #if not injection:
+        #    new_individual = inject_avg(id_new_gen)
+        #    new_individual = mutation(new_individual,genes,k,sigma)
+        #    injection = True       
+        #else:
+        if maximize:
+            indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
         else:
-            if maximize:
-                indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
-            else:
-                indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/(fitness+1e-12)), k=num_parents)
-            parents = sorted_arr[indices,:] 
-            new_individual = crossover(parents,id_new_gen)
-            new_individual = mutation(new_individual,genes,k,sigma)
+            indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/(fitness+1e-12)), k=num_parents)
+        parents = sorted_arr[indices,:] 
+        new_individual = crossover(parents,id_new_gen)
+        new_individual = mutation(new_individual,genes,k,sigma)
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]

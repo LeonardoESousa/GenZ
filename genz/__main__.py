@@ -49,9 +49,9 @@ def main():
         individual = [i for i in os.listdir(wd) if 'Individual_' in i]
         for i in individual:
             shutil.move(wd + i, wd + 'Logs/'+ i)
-        sorted_arr = order(maximize)
+        sorted_arr = order(maximize, genes)
         elite(num_elite, sorted_arr, genes, maximize)
-        best_ind = best(sorted_arr, genes)
+        best_ind = best(sorted_arr, genes, maximize)
         progress(num, best_ind, genes)
         tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
         
