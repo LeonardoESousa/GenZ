@@ -50,7 +50,7 @@ def main():
         for i in individual:
             shutil.move(wd + i, wd + 'Logs/'+ i)
         sorted_arr = order(maximize, genes)
-        elite(num_elite, sorted_arr, genes, maximize)
+        elite(num_elite, sorted_arr, genes)
         best_ind = best(sorted_arr, genes, maximize)
         progress(num, best_ind, genes)
         tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)

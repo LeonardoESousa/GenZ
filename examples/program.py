@@ -1,4 +1,3 @@
-from lib2to3.pgen2.pgen import PgenGrammar
 import sys
 from genz.genetic import get_genes
 

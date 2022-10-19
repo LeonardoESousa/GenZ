@@ -41,6 +41,10 @@ class Genes():
             new_gene = random.choice(lista)
         else:
             new_gene = np.random.normal(gene, gene*sigma)
+            if new_gene > self.limits[num][1]:
+                new_gene = self.limits[num][1]
+            elif new_gene < self.limits[num][0]:
+                new_gene = self.limits[num][0]    
             new_gene = np.round(new_gene,self.formats[num])
         return new_gene 
 
