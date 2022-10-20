@@ -7,6 +7,8 @@ import time
 #importing config module
 import importlib
 from genz.genetic import *
+import shutil
+
 wd = os.getcwd()+'/'
 config_file = wd+sys.argv[1]
 spec   = importlib.util.spec_from_file_location(sys.argv[1].split('.')[0], wd+sys.argv[1])
@@ -55,7 +57,17 @@ def main():
         progress(num, best_ind, genes)
         tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
         
-        
+def reset():
+    try:
+        shutil.rmtree('Logs')
+        files = [i for i in os.listdir('.') if '.dat' in i]
+        for file in files:
+            os.remove(file)
+    except:
+        print('Could not find files to delete!')        
 
 if __name__ == "__main__":
-    sys.exit(main())        
+    if sys.argv[1] == 'reset':
+        sys.exit(reset())
+    else:    
+        sys.exit(main())        

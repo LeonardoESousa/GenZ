@@ -40,7 +40,7 @@ class Genes():
             del lista[lista.index(gene)]
             new_gene = random.choice(lista)
         else:
-            new_gene = np.random.normal(gene, gene*sigma)
+            new_gene = np.random.normal(gene, sigma*abs(self.limits[num][1]-self.limits[num][0])/2)
             if new_gene > self.limits[num][1]:
                 new_gene = self.limits[num][1]
             elif new_gene < self.limits[num][0]:
@@ -147,7 +147,7 @@ def elite(num_elite, sorted_arr, genes):
 
 def best(matriz_ordenada,genes,maximize):
     try:
-        matriz_ordenada = np.vstack((matriz_ordenada,[np.genfromtxt('Best.dat',skip_footer=2)]))
+        matriz_ordenada = np.vstack((matriz_ordenada,np.genfromtxt('Best.dat',skip_footer=2)))
     except:
         pass
     if maximize:
@@ -210,7 +210,7 @@ def mutation(individual,genes,kappa,sigma):
     dice = np.random.uniform(0,1,total-1)
     for num in range(0,total-1):
         if dice[num] <= prob[num]:
-            new_gene = genes.mutation(num,individual[0,num+1],sigma[num])
+            new_gene = genes.mutation(num,individual[0,num+1],prob[num])
             individual[0,num+1] = new_gene
     return individual
 
@@ -240,10 +240,11 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
+    mean  =  np.mean(sorted_arr[:,1:],axis=0)
     try:
-        sigma =  np.nan_to_num(np.abs(np.std(sorted_arr[:,1:],axis=0)/np.mean(sorted_arr[:,1:],axis=0)))   #np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
+        sigma =  np.nan_to_num(np.abs(np.std(sorted_arr[:,1:],axis=0)/mean))   #np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
-        sigma = k*np.ones(sorted_arr[:,1:].shape())
+        sigma = k*np.ones(sorted_arr[:,1:].shape())    
     #injection = False
     for _ in range(0,num_new_gen):
         #if not injection:
