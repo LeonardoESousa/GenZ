@@ -40,11 +40,11 @@ class Genes():
             del lista[lista.index(gene)]
             new_gene = random.choice(lista)
         else:
-            new_gene = np.random.normal(gene, sigma*abs(self.limits[num][1]-self.limits[num][0])/2)
-            if new_gene > self.limits[num][1]:
-                new_gene = self.limits[num][1]
-            elif new_gene < self.limits[num][0]:
-                new_gene = self.limits[num][0]    
+            interval = abs(self.limits[num][1]-self.limits[num][0])/10
+            interval = max(sigma*interval, 10**(-1*self.formats[num])) 
+            new_gene = np.random.normal(gene, interval)
+            new_gene = min(new_gene,self.limits[num][1])
+            new_gene = max(new_gene,self.limits[num][0])
             new_gene = np.round(new_gene,self.formats[num])
         return new_gene 
 
@@ -84,14 +84,6 @@ def get_by_id(id_ind,file):
     id = np.where(data[:,0] == id_ind)[0][0]
     ind_genes = data[id,1:]
     return ind_genes
-
-#def get_avg(folder='.'):
-#    data = np.loadtxt(folder+'/Avg_Elite.dat')
-#    try:
-#        data = data[:,:-1]
-#    except:
-#        data = data[:-1]
-#    return data
 
 ## max_id (Pedao)
 # args: None
@@ -213,16 +205,6 @@ def mutation(individual,genes,kappa,sigma):
             new_gene = genes.mutation(num,individual[0,num+1],prob[num])
             individual[0,num+1] = new_gene
     return individual
-
-#def inject_avg(id_new_gen):
-#    genes = get_avg()
-#    try:
-#        genes = genes[-1,:]
-#    except:
-#        pass    
-#    genes = np.insert(genes,0,id_new_gen)
-#    genes = genes[np.newaxis,:]
-#    return genes
     
 
 ## TNG (Laura)
@@ -245,13 +227,7 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
         sigma =  np.nan_to_num(np.abs(np.std(sorted_arr[:,1:],axis=0)/mean))   #np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
         sigma = k*np.ones(sorted_arr[:,1:].shape())    
-    #injection = False
     for _ in range(0,num_new_gen):
-        #if not injection:
-        #    new_individual = inject_avg(id_new_gen)
-        #    new_individual = mutation(new_individual,genes,k,sigma)
-        #    injection = True       
-        #else:
         if maximize:
             indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
         else:
