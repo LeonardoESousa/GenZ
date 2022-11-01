@@ -34,14 +34,14 @@ class Genes():
         except:    
             self.probs[num] = np.ones(len(self.limits[num]))     
 
-    def mutation(self,num,gene,sigma):
+    def mutation(self,num,gene):
         if self.types[num] !=  float:
             lista = self.limits[num].copy()
             del lista[lista.index(gene)]
             new_gene = random.choice(lista)
         else:
-            interval = abs(self.limits[num][1]-self.limits[num][0])/10
-            interval = max(sigma*interval, 10**(-1*self.formats[num])) 
+            interval = abs(self.limits[num][1]-self.limits[num][0])/2
+            interval = min(interval, 3*(10**(-1*self.formats[num]))) 
             new_gene = np.random.normal(gene, interval)
             new_gene = min(new_gene,self.limits[num][1])
             new_gene = max(new_gene,self.limits[num][0])
@@ -197,13 +197,11 @@ def crossover(parents,id_new_gen):
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
 def mutation(individual,genes,kappa,sigma):
-    total = np.shape(individual)[1]
-    prob = np.exp(-sigma/kappa)
-    dice = np.random.uniform(0,1,total-1)
-    for num in range(0,total-1):
-        if dice[num] <= prob[num]:
-            new_gene = genes.mutation(num,individual[0,num+1],prob[num])
-            individual[0,num+1] = new_gene
+    prob     = np.exp(-sigma/kappa)
+    prob     = np.cumsum(prob/np.sum(prob))
+    mut      = np.argmax(random.uniform(0,1) <= prob)
+    new_gene = genes.mutation(mut,individual[0,mut+1])
+    individual[0,mut+1] = new_gene
     return individual
     
 
@@ -238,6 +236,8 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
+    ind = np.unique(next_gen[:,1:],axis=0,return_index=True)[1]
+    next_gen = next_gen[ind,:]
     np.savetxt('NextGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
 
 
