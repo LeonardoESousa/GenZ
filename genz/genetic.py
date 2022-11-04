@@ -197,7 +197,7 @@ def crossover(parents,id_new_gen):
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
 def mutation(individual,genes,kappa,sigma):
-    prob     = np.exp(-sigma/kappa)
+    prob     = np.exp(-sigma[1:]/kappa)
     prob     = np.cumsum(prob/np.sum(prob))
     mut      = np.argmax(random.uniform(0,1) <= prob)
     new_gene = genes.mutation(mut,individual[0,mut+1])
@@ -239,6 +239,7 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
     ind = np.unique(next_gen[:,1:],axis=0,return_index=True)[1]
     next_gen = next_gen[ind,:]
     np.savetxt('NextGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
+    return next_gen.shape[0]
 
 
 ## Gera batch script (Laura)

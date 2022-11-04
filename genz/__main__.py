@@ -48,6 +48,7 @@ def main():
         genes.first_gen()
         initial = 1
     gen.killswitch(wd)
+    pop = num_cross
     # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.    
     for num in range(initial,num_gen+1):
         gen.script_batch(nproc,prog)
@@ -55,7 +56,7 @@ def main():
         for script in scripts:
             subprocess.Popen(['bash', batch, script])
         start_time = time.time()
-        gen.hold_watch(wd,deltat/4,num_cross)
+        gen.hold_watch(wd,deltat/4,pop)
         deltat = min(time.time() - start_time,120)
         for script in scripts:
             os.remove(wd + script)
@@ -67,7 +68,7 @@ def main():
         gen.elite(num_elite, sorted_arr, genes)
         best_ind = gen.best(sorted_arr, genes, maximize)
         gen.progress(num, best_ind, genes)
-        gen.tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
+        pop = gen.tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
                
 
 if __name__ == "__main__":   
