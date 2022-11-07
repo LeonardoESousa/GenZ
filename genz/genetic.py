@@ -101,13 +101,14 @@ def max_id():
 # i)  Try: Incluir elite no report. 
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
 # iii)Retorna matriz ordenada. 
-def order(maximize, genes):
+def order(maximize, genes, inc_elite):
     data = np.loadtxt('Report.dat')
-    try:
-        elite = np.loadtxt('Elite.dat')
-        data  = np.vstack((data,elite))
-    except:
-        pass
+    if inc_elite:
+        try:
+            elite = np.loadtxt('Elite.dat')
+            data  = np.vstack((data,elite))
+        except:
+            pass
     with open('Avg_Population.dat', 'a') as f, open('Std_Population.dat', 'a') as g: 
         average = np.average(data[:,1:],axis=0)
         np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)

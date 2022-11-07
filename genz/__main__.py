@@ -40,7 +40,7 @@ def main():
     genes       = config.genes
     num_parents = config.num_parents
     batch       = config.batch
-    
+    inc_elite   = config.inc_elite
     deltat = 30
     try:
         initial = int(max(np.loadtxt('Progress.dat')[:,0])) + 1
@@ -64,7 +64,7 @@ def main():
         individual = [i for i in os.listdir(wd) if 'Individual_' in i]
         for i in individual:
             shutil.move(wd + i, wd + 'Logs/'+ i)
-        sorted_arr = gen.order(maximize, genes)
+        sorted_arr = gen.order(maximize, genes, inc_elite)
         gen.elite(num_elite, sorted_arr, genes)
         best_ind = gen.best(sorted_arr, genes, maximize)
         gen.progress(num, best_ind, genes)
