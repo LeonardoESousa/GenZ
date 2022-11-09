@@ -141,6 +141,7 @@ def elite(num_elite, sorted_arr, genes):
 def best(matriz_ordenada,genes,maximize):
     try:
         matriz_ordenada = np.vstack((matriz_ordenada,np.genfromtxt('Best.dat',skip_footer=2)))
+        matriz_ordenada = np.unique(matriz_ordenada,axis=0,return_index=False)
     except:
         pass
     if maximize:
@@ -198,7 +199,8 @@ def crossover(parents,id_new_gen):
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho. 
 def mutation(individual,genes,kappa,sigma):
-    prob     = np.exp(-sigma[1:]/kappa)
+    #prob     = np.exp(-sigma[1:]/kappa)
+    prob     = sigma[1:]
     prob     = np.cumsum(prob/np.sum(prob))
     mut      = np.argmax(random.uniform(0,1) <= prob)
     new_gene = genes.mutation(mut,individual[0,mut+1])

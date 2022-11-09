@@ -48,9 +48,11 @@ def main():
         genes.first_gen()
         initial = 1
     gen.killswitch(wd)
-    pop = num_cross
+    
     # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.    
     for num in range(initial,num_gen+1):
+        data = np.loadtxt('NextGen.dat')
+        pop  = data.shape[0]
         gen.script_batch(nproc,prog)
         scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
         for script in scripts:
