@@ -41,6 +41,7 @@ def main():
     num_parents = config.num_parents
     batch       = config.batch
     inc_elite   = config.inc_elite
+    model       = config.model
     deltat = 30
     try:
         initial = int(max(np.loadtxt('Progress.dat')[:,0])) + 1
@@ -71,6 +72,7 @@ def main():
         best_ind = gen.best(sorted_arr, genes, maximize)
         gen.progress(num, best_ind, genes)
         pop = gen.tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
+        gen.remake_nextgen(model, genes, maximize)
                
 
 if __name__ == "__main__":   

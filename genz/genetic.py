@@ -332,3 +332,17 @@ def evaluate(func,genes):
             np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')
             np.savetxt(g,[params],fmt=genes.fmts + genes.precision,delimiter='\t')  
             
+def remake_nextgen(func, genes,maximize):
+    data = np.loadtxt('Space.dat')
+    grid = func(data)
+    model5 = grid.best_estimator_
+    newgen = np.loadtxt('NextGen.dat')
+    X_test = newgen[:, 1:]
+    y_5 = model5.predict(X_test)
+    argsort = np.argsort(y_5)
+    if maximize:
+        argsort = argsort[::-1]
+    np.savetxt('NextGen.dat', newgen[argsort[:genes.population],:], fmt=genes.fmts,delimiter='\t')
+
+    with open('Model.dat','a') as f:
+        f.write(f'{grid.best_params_}\t{grid.best_score_}\n')
