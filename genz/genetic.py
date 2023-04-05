@@ -219,7 +219,7 @@ def mutation(individual,genes,kappa,sigma):
 #   vii)  Usar o np.vstack para criar um array em que cada linha corresponde a um filho e cada coluna os seus genes. A primeira coluna tem de ser o numero identificador do individuo.
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
-def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
+def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize, ):
     fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
@@ -337,12 +337,14 @@ def remake_nextgen(func, genes,maximize):
     grid = func(data)
     model5 = grid.best_estimator_
     newgen = np.loadtxt('NextGen.dat')
+    ids = np.sort(newgen[:genes.population,0])
     X_test = newgen[:, 1:]
     y_5 = model5.predict(X_test)
     argsort = np.argsort(y_5)
     if maximize:
         argsort = argsort[::-1]
-    np.savetxt('NextGen.dat', newgen[argsort[:genes.population],:], fmt=genes.fmts,delimiter='\t')
+    newgen = np.hstack((ids[:,np.newaxis],newgen[argsort[:genes.population],1:]))
+    np.savetxt('NextGen.dat', newgen, fmt=genes.fmts,delimiter='\t')
 
     with open('Model.dat','a') as f:
         f.write(f'{grid.best_params_}\t{grid.best_score_}\n')
