@@ -220,14 +220,14 @@ def mutation(individual,genes,kappa,sigma):
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
 def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
-    fitness = sorted_arr[:,-1]
+    fitness = np.ones(sorted_arr.shape[0]) #sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     mean  =  np.mean(sorted_arr[:,1:],axis=0)
     try:
         sigma =  np.nan_to_num(np.abs(np.std(sorted_arr[:,1:],axis=0)/mean))   #np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
-        sigma = k*np.ones(sorted_arr[:,1:].shape())    
+        sigma = k*np.ones(sorted_arr[:,1:].shape)    
     for _ in range(0,num_new_gen):
         if maximize:
             indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
@@ -343,9 +343,13 @@ def remake_nextgen(func, genes,maximize):
     argsort = np.argsort(y_5)
     if maximize:
         argsort = argsort[::-1]
+    newgen = newgen[argsort,:]    
     ind = np.unique(newgen[:,1:],axis=0,return_index=True)[1]
-    newgen = newgen[ind,:]    
-    newgen = np.hstack((ids[:,np.newaxis],newgen[argsort[:genes.population],1:]))
+    newgen = newgen[ind,:]
+    size = min(genes.population,newgen.shape[0])
+    newgen = newgen[:size,:]
+    ids = ids[:size]     
+    newgen = np.hstack((ids[:,np.newaxis],newgen[:,1:]))
     np.savetxt('NextGen.dat', newgen, fmt=genes.fmts,delimiter='\t')
 
     with open('Model.dat','a') as f:
