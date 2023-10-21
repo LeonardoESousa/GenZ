@@ -6,9 +6,9 @@ import shutil
 import time
 #importing config module
 import importlib
-import genz.genetic as gen
 import numpy as np
-import shutil
+import genz.genetic as gen
+
 
 def reset():
     try:
@@ -17,12 +17,12 @@ def reset():
         for file in files:
             os.remove(file)
     except:
-        print('Could not find files to delete!') 
+        print('Could not find files to delete!')
 
 
 def main():
     if sys.argv[1] == 'reset':
-        sys.exit(reset())    
+        sys.exit(reset())
     wd = os.getcwd()+'/'
     spec   = importlib.util.spec_from_file_location(sys.argv[1].split('.')[0], wd+sys.argv[1])
     config = importlib.util.module_from_spec(spec)
@@ -42,6 +42,7 @@ def main():
     batch       = config.batch
     inc_elite   = config.inc_elite
     model       = config.model
+    clean       = config.clean
     deltat = 30
     try:
         initial = int(max(np.loadtxt('Progress.dat')[:,0])) + 1
@@ -49,8 +50,8 @@ def main():
         genes.first_gen()
         initial = 1
     gen.killswitch(wd)
-    
-    # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.    
+
+    # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.
     for num in range(initial,num_gen+1):
         data = np.loadtxt('NextGen.dat')
         pop  = data.shape[0]
@@ -72,8 +73,8 @@ def main():
         best_ind = gen.best(sorted_arr, genes, maximize)
         gen.progress(num, best_ind, genes)
         pop = gen.tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
-        gen.remake_nextgen(model, genes, maximize)
-               
+        gen.remake_nextgen(model,clean, genes, maximize)
 
-if __name__ == "__main__":   
-    sys.exit(main())        
+
+if __name__ == "__main__":
+    sys.exit(main())

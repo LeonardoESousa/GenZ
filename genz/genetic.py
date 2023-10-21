@@ -2,7 +2,7 @@ import numpy as np
 import os
 import random
 import sys
-import time 
+import time
 
 random.seed(1)
 np.random.seed(1)
@@ -28,11 +28,11 @@ class Genes():
             self.formats[num] = kwargs['format']
             self.fmts.append('%+.{}f'.format(kwargs['format']))
         else:
-            self.fmts.append('%.0f')    
+            self.fmts.append('%.0f')
         try:
             self.probs[num] = kwargs['probs']
-        except:    
-            self.probs[num] = np.ones(len(self.limits[num]))     
+        except:
+            self.probs[num] = np.ones(len(self.limits[num]))
 
     def mutation(self,num,gene):
         if self.types[num] !=  float:
@@ -40,13 +40,9 @@ class Genes():
             del lista[lista.index(gene)]
             new_gene = random.choice(lista)
         else:
-            interval = abs(self.limits[num][1]-self.limits[num][0])/2
-            interval = min(interval, 3*(10**(-1*self.formats[num]))) 
-            new_gene = np.random.normal(gene, interval)
-            new_gene = min(new_gene,self.limits[num][1])
-            new_gene = max(new_gene,self.limits[num][0])
+            new_gene = np.random.uniform(self.limits[num][0],self.limits[num][1])
             new_gene = np.round(new_gene,self.formats[num])
-        return new_gene 
+        return new_gene
 
     def first_gen(self):
         first = np.zeros((1,len(self.genes)+1))
@@ -98,9 +94,9 @@ def max_id():
 
 ## Orders the Report (Laura)
 # args: None
-# i)  Try: Incluir elite no report. 
+# i)  Try: Incluir elite no report.
 # ii) Pegar os dados do Report. Usar np.loadtxt. Ordenar (maior pro menor se maximize=True, else menor pro maior)
-# iii)Retorna matriz ordenada. 
+# iii)Retorna matriz ordenada.
 def order(maximize, genes, inc_elite):
     data = np.loadtxt('Report.dat')
     if inc_elite:
@@ -109,7 +105,7 @@ def order(maximize, genes, inc_elite):
             data  = np.vstack((data,elite))
         except:
             pass
-    with open('Avg_Population.dat', 'a') as f, open('Std_Population.dat', 'a') as g: 
+    with open('Avg_Population.dat', 'a') as f, open('Std_Population.dat', 'a') as g:
         average = np.average(data[:,1:],axis=0)
         np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
         std = np.std(data[:,1:], axis=0)
@@ -146,7 +142,7 @@ def best(matriz_ordenada,genes,maximize):
         pass
     if maximize:
         best_fitness = max(matriz_ordenada[:,-1])
-    else:        
+    else:
         best_fitness = min(matriz_ordenada[:,-1])
 
     inds = np.where(matriz_ordenada[:,-1] == best_fitness)[0]
@@ -182,7 +178,7 @@ def progress(num_gen, best_ind, genes):
 ## Crossover (Laura)
 # args: array com genes de todos os pais
 # i)  Sortear qual pai vai passar seu gene.
-# ii) Funcao retorna um array com os genes do filho. 
+# ii) Funcao retorna um array com os genes do filho.
 def crossover(parents,id_new_gen):
     individual = np.zeros((1,np.shape(parents)[1]-1))
     individual[0,0] = id_new_gen
@@ -197,16 +193,14 @@ def crossover(parents,id_new_gen):
 # new_gene = genes.mutation(0,1) - Realiza a mutacao no gene 0 que tem valor 1 agora e retorna o novo valor
 # new_gene = genes.mutation(1,0) - Realiza a mutacao no gene 1 que tem valor 0 agora e retorna o novo valor
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
-# iii) Funcao retorna um array com os genes do filho. 
+# iii) Funcao retorna um array com os genes do filho.
 def mutation(individual,genes,kappa,sigma):
-    #prob     = np.exp(-sigma[1:]/kappa)
     prob     = sigma[1:]
-    prob     = np.cumsum(prob/np.sum(prob))
-    mut      = np.argmax(random.uniform(0,1) <= prob)
+    mut      = np.random.choice(range(len(prob)), 1)[0] #np.argmax(random.uniform(0,1) <= prob)
     new_gene = genes.mutation(mut,individual[0,mut+1])
     individual[0,mut+1] = new_gene
     return individual
-    
+
 
 ## TNG (Laura)
 # args: matriz ordenada (numpy array), numero de filhos (int), numero de pais (int) (pode ser 2 ou mais), maximize (Boolean)
@@ -220,27 +214,25 @@ def mutation(individual,genes,kappa,sigma):
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
 def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
-    fitness = np.ones(sorted_arr.shape[0]) #sorted_arr[:,-1]
+    fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     mean  =  np.mean(sorted_arr[:,1:],axis=0)
     try:
         sigma =  np.nan_to_num(np.abs(np.std(sorted_arr[:,1:],axis=0)/mean))   #np.nan_to_num(np.std(fitness)/abs(np.mean(fitness)))
     except:
-        sigma = k*np.ones(sorted_arr[:,1:].shape)    
+        sigma = k*np.ones(sorted_arr[:,1:].shape)
     for _ in range(0,num_new_gen):
         if maximize:
             indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
         else:
             indices = random.choices(np.arange(len(fitness)), weights=np.nan_to_num(1/(fitness+1e-12)), k=num_parents)
-        parents = sorted_arr[indices,:] 
+        parents = sorted_arr[indices,:]
         new_individual = crossover(parents,id_new_gen)
         new_individual = mutation(new_individual,genes,k,sigma)
         next_gen = np.vstack((next_gen,new_individual))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
-    ind = np.unique(next_gen[:,1:],axis=0,return_index=True)[1]
-    next_gen = next_gen[ind,:]
     np.savetxt('ModelGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
     return next_gen.shape[0]
 
@@ -252,13 +244,13 @@ def tng(sorted_arr, num_new_gen, num_parents, k, genes, maximize):
 # iii) Usar um loop pra criar cada script. Esse é um arquivo com nome 'batch_i.sh' onde i é o numero do batch.
 #Cada linha desse arquivo deve conter 'python3 file id\n'
 # iv) Feitos os arquivos batch, criar um arquivo master.sh com uma linha pra cada arquivo batch gerado. Cada linha
-# deve ter './batch_i.sh &\n' 
+# deve ter './batch_i.sh &\n'
 
 def script_batch(N,prog):
     data = np.loadtxt('NextGen.dat')
     num_script = len(data[:,0])/N
     modulo = len(data[:,0])%N
-    
+
     m = 0
     for j in range(int(num_script)):
         with open('genbatch_'+str(j+1)+'.sh','w') as script:
@@ -281,16 +273,16 @@ def script_batch(N,prog):
 def watcher(files):
     rodando = files.copy()
     done = []
-    for input in rodando: 
+    for input in rodando:
         try:
             with open(input[:-3]+'log', 'r') as f:
                 for line in f:
                     if '#Genetic Job Done!' in line:
                         done.append(input)
         except:
-            pass 
+            pass
     for elem in done:
-        del rodando[rodando.index(elem)]                                
+        del rodando[rodando.index(elem)]
     return rodando
 ###############################################################
 
@@ -305,7 +297,7 @@ def hold_watch(wd,deltat,num_cross):
             with open('Progress.dat','a') as f:
                 f.write('#Aborted!')
             sys.exit()
-        time.sleep(deltat)    
+        time.sleep(deltat)
 ###############################################################
 
 def killswitch(wd):
@@ -330,25 +322,28 @@ def evaluate(func,genes):
             params = np.append(params,fitness)
             params = np.insert(params,0,float(id))
             np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')
-            np.savetxt(g,[params],fmt=genes.fmts + genes.precision,delimiter='\t')  
-            
-def remake_nextgen(func, genes,maximize):
+            np.savetxt(g,[params],fmt=genes.fmts + genes.precision,delimiter='\t')
+
+def remake_nextgen(func, clean, genes, maximize):
     data = np.loadtxt('Space.dat')
+    last = int(max(data[:,0]))
+    newgen = np.loadtxt('ModelGen.dat')
+    newgen = np.concatenate((newgen,data[:,:-1]),axis=0)
+    arr, ind, counts = np.unique(newgen[:,1:],axis=0,return_index=True,return_counts=True)
+    newgen = newgen[ind,:]
+    newgen = newgen[np.where(counts==1)[0],:]
+    newgen = newgen[newgen[:,0] > max(data[:,0])]
+    data = clean(data)
     grid = func(data)
     model5 = grid.best_estimator_
-    newgen = np.loadtxt('ModelGen.dat')
-    ids = np.sort(newgen[:genes.population,0])
+    ids = np.array(list(range(last+1,last+genes.population+1)))
     X_test = newgen[:, 1:]
     y_5 = model5.predict(X_test)
-    argsort = np.argsort(y_5)
-    if maximize:
-        argsort = argsort[::-1]
-    newgen = newgen[argsort,:]    
-    ind = np.unique(newgen[:,1:],axis=0,return_index=True)[1]
-    newgen = newgen[ind,:]
+    b = np.random.random(y_5.shape)
+    newgen = newgen[np.lexsort((b,y_5)),:]
     size = min(genes.population,newgen.shape[0])
     newgen = newgen[:size,:]
-    ids = ids[:size]     
+    ids = ids[:size]
     newgen = np.hstack((ids[:,np.newaxis],newgen[:,1:]))
     np.savetxt('NextGen.dat', newgen, fmt=genes.fmts,delimiter='\t')
 
