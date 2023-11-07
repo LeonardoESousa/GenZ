@@ -5,7 +5,7 @@ import os
 import shutil
 import time
 #importing config module
-import importlib
+import importlib.util
 import numpy as np
 import genz.genetic as gen
 
