@@ -24,11 +24,8 @@ class Genes():
         self.genes.append(num)
         self.types[num]  = kwargs['type']
         self.limits[num] = kwargs['space']
-        if kwargs['type'] == float:
-            self.formats[num] = kwargs['format']
-            self.fmts.append(f'%+.{kwargs["format"]}f')
-        else:
-            self.fmts.append('%.0f')
+        self.formats[num] = kwargs['format']
+        self.fmts.append(f'%+.{kwargs["format"]}f')
         try:
             self.probs[num] = kwargs['probs']
         except KeyError:
