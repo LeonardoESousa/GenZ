@@ -44,9 +44,13 @@ class Genes():
     def first_gen(self):
         try:
             first = np.loadtxt('NextGen.dat')
+            #check if first is 2D
+            if len(first.shape) == 1:
+                first = first[np.newaxis,:]
+                num = first.shape[0]
         except FileNotFoundError:    
-            pass
-        for i in range(first.shape[0],self.population):
+            num = 0
+        for i in range(num,self.population):
             linha = np.zeros((1,len(self.genes)+1))
             linha[0,0] = i
             for g in self.genes:
