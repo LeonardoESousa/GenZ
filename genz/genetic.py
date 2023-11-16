@@ -47,7 +47,7 @@ class Genes():
             #check if first is 2D
             if len(first.shape) == 1:
                 first = first[np.newaxis,:]
-                num = first.shape[0]
+            num = first.shape[0]
         except FileNotFoundError:    
             num = 0
         for i in range(num,self.population):
@@ -62,7 +62,6 @@ class Genes():
                 first = np.vstack((first,linha))
             except NameError:
                 first = linha
-        first = first[1:,:]
         np.savetxt('NextGen.dat', first, fmt=self.fmts, delimiter='\t')
 
 ## Pega genes (Laura)
