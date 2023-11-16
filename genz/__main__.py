@@ -4,7 +4,6 @@ import sys
 import os
 import shutil
 import time
-#importing config module
 import importlib.util
 import numpy as np
 import genz.genetic as gen
@@ -13,7 +12,7 @@ import genz.genetic as gen
 def reset():
     try:
         shutil.rmtree('Logs')
-        files = [i for i in os.listdir('.') if '.dat' in i]
+        files = [i for i in os.listdir('.') if '.dat' in i or 'genbatch' in i]
         for file in files:
             os.remove(file)
     except:
@@ -40,13 +39,10 @@ def main():
     genes       = config.genes
     num_parents = config.num_parents
     batch       = config.batch
-    inc_elite   = config.inc_elite
-    model       = config.model
-    clean       = config.clean
     deltat = 30
     try:
         initial = int(max(np.loadtxt('Progress.dat')[:,0])) + 1
-    except:
+    except FileNotFoundError:
         genes.first_gen()
         initial = 1
     gen.killswitch(wd)
@@ -68,12 +64,11 @@ def main():
         individual = [i for i in os.listdir(wd) if 'Individual_' in i]
         for i in individual:
             shutil.move(wd + i, wd + 'Logs/'+ i)
-        sorted_arr = gen.order(maximize, genes, inc_elite)
+        sorted_arr = gen.order(maximize, genes)
         gen.elite(num_elite, sorted_arr, genes)
         best_ind = gen.best(sorted_arr, genes, maximize)
         gen.progress(num, best_ind, genes)
         pop = gen.tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
-        gen.remake_nextgen(model,clean, genes, maximize)
 
 
 if __name__ == "__main__":
