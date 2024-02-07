@@ -208,6 +208,25 @@ def mutation(individual,genes,kappa):
     return individual
 
 
+def check_repeated(data_slice,genes):
+    genes = genes.flatten()[1:]
+    if len(data_slice) == 0:
+        return True
+    else:
+        try:
+            match_indices = np.where(np.all(data_slice == genes, axis=1))[0][0]
+            return False
+        except IndexError:
+            return True
+        
+def check_limitation(genes):
+    genes = genes.flatten()[1:]
+    if genes[0] == genes[1]:
+        return False
+    elif genes[2] == genes[3]:
+        return False
+    return True
+
 ## TNG (Laura)
 # args: matriz ordenada (numpy array), numero de filhos (int), numero de pais (int) (pode ser 2 ou mais), maximize (Boolean)
 # i)   Chamar a funcao max_id, guardar o que ela retorna e somar um. Esse vai ser o id do primeiro filho a ser gerado,
@@ -220,19 +239,30 @@ def mutation(individual,genes,kappa):
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
 def tng(sorted_arr, num_new_gen, num_parents, kappa, genes, maximize):
+    try:
+        data = np.loadtxt('Space.dat')
+        data_slice = data[:,1:-1]
+    except FileNotFoundError:
+        data_slice = np.array([])
     fitness = sorted_arr[:,-1]
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     for _ in range(0,num_new_gen):
-        if maximize:
-            indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
-        else:
-            weights = np.max(fitness) + np.min(fitness) - fitness
-            indices = random.choices(np.arange(len(fitness)), weights=weights, k=num_parents)
-        parents = sorted_arr[indices,:]
-        new_individual = crossover(parents,id_new_gen)
-        new_individual = mutation(new_individual,genes,kappa)
+        ok = False
+        while not ok:
+            if maximize:
+                indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
+            else:
+                weights = np.max(fitness) + np.min(fitness) - fitness
+                indices = random.choices(np.arange(len(fitness)), weights=weights, k=num_parents)
+            parents = sorted_arr[indices,:]
+            new_individual = crossover(parents,id_new_gen)
+            new_individual = mutation(new_individual,genes,kappa)
+            ok1 = check_repeated(data_slice,new_individual)
+            ok2 = check_limitation(new_individual)
+            ok = ok1 and ok2
         next_gen = np.vstack((next_gen,new_individual))
+        data_slice = np.vstack((data_slice,new_individual[0,1:]))
         id_new_gen += 1
     next_gen = next_gen[1:,:]
     np.savetxt('NextGen.dat',next_gen,fmt=genes.fmts, delimiter='\t')
