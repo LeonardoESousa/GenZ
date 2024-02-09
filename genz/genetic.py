@@ -200,12 +200,13 @@ def crossover(parents,id_new_gen):
 # ii) Troca o gene velho pelo novo. Repete para todos os genes.
 # iii) Funcao retorna um array com os genes do filho.
 def mutation(individual,genes,kappa):
-    num = int((individual.shape[1]-1)*kappa)
-    mut      = np.random.choice(range(individual.shape[1]-1), num)
-    for mu in mut:
-        new_gene = genes.mutation(mu,individual[0,mu+1])
-        individual[0,mu+1] = new_gene
+    for i in range(individual.shape[1]-1):
+        num = random.uniform(0,1)
+        if num < kappa:
+            new_gene = genes.mutation(i,individual[0,i+1])
+            individual[0,i+1] = new_gene
     return individual
+
 
 
 def check_repeated(data_slice,genes):
