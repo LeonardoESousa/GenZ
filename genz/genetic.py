@@ -111,15 +111,19 @@ def order(maximize, genes):
     except FileNotFoundError:
         pass
     with open('Avg_Population.dat', 'a') as f, open('Std_Population.dat', 'a') as g:
-        average = np.average(data[:,1:],axis=0)
+        average = np.nanmean(data[:,1:],axis=0)
         np.savetxt(f,[average], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
-        std = np.std(data[:,1:], axis=0)
+        std = np.nanstd(data[:,1:], axis=0)
         np.savetxt(g,[std], delimiter='\t',fmt=genes.fmts[1:]+genes.precision)
-    indice = np.argsort(data[:,-1])
+    valid_mask = np.isfinite(data[:,-1])
+    ranked_data = data[valid_mask,:]
+    if ranked_data.size == 0:
+        raise RuntimeError('No valid fitness values available for ranking in Report.dat/Elite.dat.')
+    indice = np.argsort(ranked_data[:,-1])
     if maximize:
-        sorted_arr = data[np.flip(indice),:]
+        sorted_arr = ranked_data[np.flip(indice),:]
     else:
-        sorted_arr = data[indice,:]
+        sorted_arr = ranked_data[indice,:]
     return sorted_arr
 
 ## Elite (Laura)
@@ -148,13 +152,18 @@ def best(matriz_ordenada,genes,maximize):
             matriz_ordenada = np.unique(matriz_ordenada, axis=0, return_index=False)
     except (OSError, ValueError):
         pass
-    if maximize:
-        best_fitness = max(matriz_ordenada[:,-1])
-    else:
-        best_fitness = min(matriz_ordenada[:,-1])
+    valid_mask = np.isfinite(matriz_ordenada[:,-1])
+    valid_rows = matriz_ordenada[valid_mask,:]
+    if valid_rows.size == 0:
+        raise RuntimeError('No valid fitness values available to compute best individual.')
 
-    inds = np.where(matriz_ordenada[:,-1] == best_fitness)[0]
-    melhor_indiv = matriz_ordenada[inds,:]
+    if maximize:
+        best_fitness = max(valid_rows[:,-1])
+    else:
+        best_fitness = min(valid_rows[:,-1])
+
+    inds = np.where(valid_rows[:,-1] == best_fitness)[0]
+    melhor_indiv = valid_rows[inds,:]
     media=np.mean(melhor_indiv,axis=0)
     media=[media[1:-1]]
     desvi=np.std(melhor_indiv,axis=0)
@@ -342,10 +351,10 @@ def evaluate(func,genes):
             identity = ind.split('_')[1]
             params = get_genes(identity)
             try:
-                fitness = max(0,func(ind))
+                fitness = func(ind)
             except Exception as exc:
                 print(f'Warning: failed to evaluate {ind}: {exc}', file=sys.stderr)
-                fitness = 0
+                fitness = np.nan
             params = np.append(params,fitness)
             params = np.insert(params,0,float(identity))
             np.savetxt(f,[params],fmt=genes.fmts + genes.precision,delimiter='\t')
