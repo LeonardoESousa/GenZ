@@ -10,13 +10,14 @@ import genz.genetic as gen
 
 
 def reset():
-    try:
+    if os.path.isdir('Logs'):
         shutil.rmtree('Logs')
-        files = [i for i in os.listdir('.') if '.dat' in i or 'genbatch' in i]
-        for file in files:
+    files = [i for i in os.listdir('.') if '.dat' in i or 'genbatch' in i]
+    for file in files:
+        try:
             os.remove(file)
-    except:
-        print('Could not find files to delete!')
+        except FileNotFoundError:
+            continue
 
 
 def main():
@@ -68,7 +69,7 @@ def main():
         gen.elite(num_elite, sorted_arr, genes)
         best_ind = gen.best(sorted_arr, genes, maximize)
         gen.progress(num, best_ind, genes)
-        pop = gen.tng(sorted_arr, num_cross, num_parents, kappa, genes, maximize)
+        pop = gen.tng(sorted_arr, num_cross, num_parents, kappa, genes)
 
 
 if __name__ == "__main__":

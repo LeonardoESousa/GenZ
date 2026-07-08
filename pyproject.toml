@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "GenZ"
+version = "0.1.0"
+description = "Multipurpose genetic algorithm"
+readme = "README.md"
+requires-python = ">=3.6"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Leonardo Evaristo de Sousa", email = "ledso@dtu.dk" }
+]
+
+dependencies = [
+    "numpy"
+]
+
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3"
+]
+
+
+[project.urls]
+Homepage = "https://github.com/LeonardoESousa/GenZ"
+
+
+[project.scripts]
+genz = "genz.__main__:main"
+
+
+[project.optional-dependencies]
+# Add optional dependency groups here if needed, for example:
+# dev = ["twine", "build"]
+
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests",
+    "*.tests",
+    "*.tests.*",
+    "tests.*"
+]
+
+
+[tool.setuptools]
+include-package-data = true

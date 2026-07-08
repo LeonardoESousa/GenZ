@@ -141,9 +141,12 @@ def elite(num_elite, sorted_arr, genes):
 
 def best(matriz_ordenada,genes,maximize):
     try:
-        matriz_ordenada = np.vstack((matriz_ordenada,np.genfromtxt('Best.dat',skip_footer=2)))
-        matriz_ordenada = np.unique(matriz_ordenada,axis=0,return_index=False)
-    except:
+        previous_best = np.genfromtxt('Best.dat', skip_footer=2)
+        if np.size(previous_best) > 0 and not np.all(np.isnan(previous_best)):
+            previous_best = np.atleast_2d(previous_best)
+            matriz_ordenada = np.vstack((matriz_ordenada, previous_best))
+            matriz_ordenada = np.unique(matriz_ordenada, axis=0, return_index=False)
+    except (OSError, ValueError):
         pass
     if maximize:
         best_fitness = max(matriz_ordenada[:,-1])
@@ -172,10 +175,8 @@ def best(matriz_ordenada,genes,maximize):
 # args: numero da geracao (N).
 
 def progress(num_gen, best_ind, genes):
-    try:
+    if np.ndim(best_ind) > 1:
         best_ind = best_ind[0,:]
-    except:
-        pass
     with open('Progress.dat', 'a') as file:
         best_ind = np.insert(best_ind,0,num_gen)
         np.savetxt(file, [best_ind], fmt=['%.0f'] + genes.fmts + genes.precision, delimiter='\t')
@@ -219,14 +220,6 @@ def check_repeated(data_slice,genes):
             return False
         except IndexError:
             return True
-        
-def check_limitation(genes):
-    genes = genes.flatten()[1:]
-    if genes[0] == genes[1]:
-        return False
-    elif genes[2] == genes[3]:
-        return False
-    return True
 
 ## TNG (Laura)
 # args: matriz ordenada (numpy array), numero de filhos (int), numero de pais (int) (pode ser 2 ou mais), maximize (Boolean)
@@ -239,29 +232,30 @@ def check_limitation(genes):
 #   vii)  Usar o np.vstack para criar um array em que cada linha corresponde a um filho e cada coluna os seus genes. A primeira coluna tem de ser o numero identificador do individuo.
 #   viii) Somar um ao identficador.
 #ix)  Escrever filhos em um novo arquivo  (id, genes)
-def tng(sorted_arr, num_new_gen, num_parents, kappa, genes, maximize):
+def tng(sorted_arr, num_new_gen, num_parents, kappa, genes):
     try:
         data = np.loadtxt('Space.dat')
         data_slice = data[:,1:-1]
     except FileNotFoundError:
         data_slice = np.array([])
     fitness = sorted_arr[:,-1]
+    rank_weights = np.arange(len(fitness), 0, -1, dtype=float)
     id_new_gen = max_id() + 1
     next_gen = np.zeros((1,np.shape(sorted_arr)[1]-1))
     for _ in range(0,num_new_gen):
         ok = False
-        while not ok:
-            if maximize:
-                indices = random.choices(np.arange(len(fitness)), weights=fitness, k=num_parents)
-            else:
-                weights = np.max(fitness) + np.min(fitness) - fitness
-                indices = random.choices(np.arange(len(fitness)), weights=weights, k=num_parents)
+        attempts = 0
+        max_attempts = max(100, 10 * len(fitness))
+        while not ok and attempts < max_attempts:
+            # Select parents by rank so probabilities remain valid regardless of fitness scale/sign.
+            indices = random.choices(np.arange(len(fitness)), weights=rank_weights, k=num_parents)
             parents = sorted_arr[indices,:]
             new_individual = crossover(parents,id_new_gen)
             new_individual = mutation(new_individual,genes,kappa)
-            ok1 = check_repeated(data_slice,new_individual)
-            ok2 = check_limitation(new_individual)
-            ok = ok1 and ok2
+            ok = check_repeated(data_slice,new_individual)
+            attempts += 1
+        if not ok:
+            raise RuntimeError('Could not generate a unique offspring after maximum attempts. Increase diversity or relax constraints.')
         next_gen = np.vstack((next_gen,new_individual))
         data_slice = np.vstack((data_slice,new_individual[0,1:]))
         id_new_gen += 1
@@ -311,7 +305,7 @@ def watcher(files):
                 for line in f:
                     if '#Genetic Job Done!' in line:
                         done.append(input_file)
-        except:
+        except (FileNotFoundError, OSError):
             pass
     for elem in done:
         del rodando[rodando.index(elem)]
@@ -349,7 +343,8 @@ def evaluate(func,genes):
             params = get_genes(identity)
             try:
                 fitness = max(0,func(ind))
-            except:
+            except Exception as exc:
+                print(f'Warning: failed to evaluate {ind}: {exc}', file=sys.stderr)
                 fitness = 0
             params = np.append(params,fitness)
             params = np.insert(params,0,float(identity))
