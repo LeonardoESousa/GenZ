@@ -281,44 +281,74 @@ def tng(sorted_arr, num_new_gen, num_parents, kappa, genes):
 #Cada linha desse arquivo deve conter 'python3 file id\n'
 # iv) Feitos os arquivos batch, criar um arquivo master.sh com uma linha pra cada arquivo batch gerado. Cada linha
 # deve ter './batch_i.sh &\n'
-def script_batch(N,prog):
+def script_batch(N,prog,ids=None):
     data = np.loadtxt('NextGen.dat')
-    num_script = len(data[:,0])/N
-    modulo = len(data[:,0])%N
+    if data.ndim == 1:
+        data = data.reshape(1, -1)
+
+    if ids is None:
+        selected = data
+    else:
+        ids_set = {int(i) for i in ids}
+        selected = np.array([row for row in data if int(row[0]) in ids_set])
+
+    if selected.size == 0:
+        return 0
+
+    num_script = len(selected[:,0])/N
+    modulo = len(selected[:,0])%N
 
     m = 0
     for j in range(int(num_script)):
         with open(f'genbatch_{j+1}.sh','w') as script:
             l = 0
             while l < N:
-                script.write(f'{prog} {data[m,0]:.0f}\n')
-                script.write(f'echo "\n#Genetic Job Done!" >> Individual_{data[m,0]:.0f}_.log\n')
+                script.write(f'{prog} {selected[m,0]:.0f}\n')
+                script.write(f'echo "\n#Genetic Job Done!" >> Individual_{selected[m,0]:.0f}_.log\n')
                 l += 1
                 m += 1
 
     if modulo != 0:
         with open('genbatch_'+str(int(num_script)+1)+'.sh','w') as script:
             for _ in range(modulo):
-                script.write(f'{prog} {data[m,0]:.0f}\n')
-                script.write(f'echo "\n#Genetic Job Done!" >> Individual_{data[m,0]:.0f}_.log\n')
+                script.write(f'{prog} {selected[m,0]:.0f}\n')
+                script.write(f'echo "\n#Genetic Job Done!" >> Individual_{selected[m,0]:.0f}_.log\n')
                 m += 1
+
+    return len(selected[:,0])
+
+
+def pending_ids(ids):
+    pending = []
+    for identity in ids:
+        logname = f'Individual_{int(identity)}_.log'
+        done = False
+        try:
+            with open(logname, 'r') as f:
+                for line in f:
+                    if '#Genetic Job Done!' in line:
+                        done = True
+                        break
+        except (FileNotFoundError, OSError):
+            pass
+        if not done:
+            pending.append(int(identity))
+    return pending
 
 
 ##CHECKS WHETHER JOBS ARE DONE#################################
 def watcher(files):
-    rodando = files.copy()
-    done = []
-    for input_file in rodando:
+    done = set()
+    for input_file in files:
         try:
-            with open(input_file[:-3]+'log', 'r') as f:
+            with open(input_file, 'r') as f:
                 for line in f:
                     if '#Genetic Job Done!' in line:
-                        done.append(input_file)
+                        done.add(input_file)
+                        break
         except (FileNotFoundError, OSError):
             pass
-    for elem in done:
-        del rodando[rodando.index(elem)]
-    return rodando
+    return [elem for elem in files if elem not in done]
 ###############################################################
 
 ##CHECKS WHETHER JOBS ARE DONE#################################

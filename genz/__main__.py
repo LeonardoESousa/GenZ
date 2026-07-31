@@ -51,8 +51,15 @@ def main():
     # Criar o loop sobre o numero de geracoes. Colocar as funcoes na ordem.
     for num in range(initial,num_gen+1):
         data = np.loadtxt('NextGen.dat')
-        pop  = data.shape[0]
-        gen.script_batch(nproc,prog)
+        if data.ndim == 1:
+            data = data.reshape(1, -1)
+        all_ids = [int(i) for i in data[:,0]]
+        pending = gen.pending_ids(all_ids)
+        pop  = len(pending)
+        if pop == 0:
+            continue
+
+        gen.script_batch(nproc,prog,pending)
         scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
         for script in scripts:
             subprocess.Popen(['bash', batch, script])
