@@ -56,18 +56,28 @@ def main():
         all_ids = [int(i) for i in data[:,0]]
         pending = gen.pending_ids(all_ids)
         pop  = len(pending)
-        if pop == 0:
-            continue
+        if pop > 0:
+            gen.script_batch(nproc,prog,pending)
+            scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
+            for script in scripts:
+                subprocess.Popen(['bash', batch, script])
+            start_time = time.time()
+            gen.hold_watch(wd,deltat/4,pop)
+            deltat = min(time.time() - start_time,120)
+            for script in scripts:
+                os.remove(wd + script)
+        else:
+            # Restart path: all current individuals already finished.
+            # If their logs are present, continue with evaluation/tng.
+            current_logs = [
+                i for i in os.listdir(wd)
+                if 'Individual_' in i and i.endswith('_.log')
+            ]
+            if len(current_logs) == 0:
+                print('No pending jobs and no Individual_*.log files in the working directory. Skipping generation.')
+                continue
+            print('No pending jobs. Resuming from existing completed Individual_*.log files.')
 
-        gen.script_batch(nproc,prog,pending)
-        scripts = [i for i in os.listdir(wd) if 'genbatch' in i and '.sh' in i]
-        for script in scripts:
-            subprocess.Popen(['bash', batch, script])
-        start_time = time.time()
-        gen.hold_watch(wd,deltat/4,pop)
-        deltat = min(time.time() - start_time,120)
-        for script in scripts:
-            os.remove(wd + script)
         gen.evaluate(eval,genes)
         individual = [i for i in os.listdir(wd) if 'Individual_' in i]
         for i in individual:
